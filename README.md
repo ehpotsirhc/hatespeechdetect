@@ -5,8 +5,9 @@
 ## Overview
 In this project, we explore the reproducibility of [Weakly-Supervised Hate Speech Classification](https://aclanthology.org/2023.woah-1.4.pdf). Specifically, we attempt to reproduce the experiments outlined in the paper and analyze whether weakly-supervised models can, in practice, outperform traditional supervised models.  
 
+
 ## Requirements
-Python 3.6 - 3.11; Tested on 3.10.7  
+Python 3.6 - 3.11; tested on 3.10.7  
 The following PIP dependencies:
 ```
 torch
@@ -47,7 +48,7 @@ cd ../classifiers/XClass/scripts/
 
 
 ## Original Classifier Repositories
-https://github.com/yumeng5/LOTClass
-https://github.com/yumeng5/WeSTClass
-https://github.com/ZihanWangKi/XClass
+https://github.com/yumeng5/LOTClass  
+https://github.com/yumeng5/WeSTClass  
+https://github.com/ZihanWangKi/XClass  
 
