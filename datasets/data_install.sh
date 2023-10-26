@@ -9,8 +9,8 @@ cp downloaded/LOTClass/imdb/* ../classifiers/LOTClass/datasets/imdb/
 
 echo "----------------------------------------------------------------------"
 printf "=== Extracting WeSTClass Data... ===\n"
-cp downloaded/WeSTClass/agnews/ ../classifiers/WeSTClass/
-cp downloaded/WeSTClass/yelp/ ../classifiers/WeSTClass/
+cp -r downloaded/WeSTClass/agnews/ ../classifiers/WeSTClass/
+cp -r downloaded/WeSTClass/yelp/ ../classifiers/WeSTClass/
 
 echo "----------------------------------------------------------------------"
 printf "=== Extracting XClass Data... ===\n"
