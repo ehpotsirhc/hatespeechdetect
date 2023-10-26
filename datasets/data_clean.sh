@@ -58,5 +58,5 @@ rm ../classifiers/XClass/data/datasets/Yelp/dataset.txt
 rm ../classifiers/XClass/data/datasets/Yelp/labels.txt
 
 
-# rm -rf ./downloaded
+rm -rf ./downloaded
 
