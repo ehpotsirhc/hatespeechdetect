@@ -1,2 +1,2 @@
-# GMU CS655: Final Project; hatespeechdetection
+# GMU CS678: Final Project; hatespeechdetection
 NLP Hate Speech Detection Research
