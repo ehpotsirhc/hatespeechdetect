@@ -40,6 +40,11 @@ cd ../classifiers/XClass/scripts/
 ./run.sh 0 Yelp
 ```
 
+If you run into an error or would like to delete all of the downloaded data, you can run the following script
+```
+./data_clean.sh
+```
+
 
 ## Resources
 #### Project Guidelines<br><https://nlp.cs.gmu.edu/course/cs678-fall23/project/>   
