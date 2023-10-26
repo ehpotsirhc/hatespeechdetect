@@ -1,18 +1,18 @@
 #!/bin/bash
 
-printf "----------------------------------------------------------------------"
+echo "----------------------------------------------------------------------"
 printf "=== Extracting LOTClass Data... ===\n"
 cp downloaded/LOTClass/agnews/* ../classifiers/LOTClass/datasets/agnews/
 cp downloaded/LOTClass/amazon/* ../classifiers/LOTClass/datasets/amazon/
 cp downloaded/LOTClass/dbpedia/* ../classifiers/LOTClass/datasets/dbpedia/
 cp downloaded/LOTClass/imdb/* ../classifiers/LOTClass/datasets/imdb/
 
-printf "----------------------------------------------------------------------"
+echo "----------------------------------------------------------------------"
 printf "=== Extracting WeSTClass Data... ===\n"
 cp downloaded/WeSTClass/agnews/ ../classifiers/WeSTClass/
 cp downloaded/WeSTClass/yelp/ ../classifiers/WeSTClass/
 
-printf "----------------------------------------------------------------------"
+echo "----------------------------------------------------------------------"
 printf "=== Extracting XClass Data... ===\n"
 cp downloaded/XClass/20News/* ../classifiers/XClass/data/datasets/20News/
 cp downloaded/XClass/AGNews/* ../classifiers/XClass/data/datasets/AGNews/
