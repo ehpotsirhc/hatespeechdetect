@@ -1,4 +1,4 @@
-# Hate Speech Detection Reproducibility Study
+# Hate Speech Classification Reproducibility Study
 ## GMU CS678 Final Project<br>Iris Chen • Christophe Leung • Kelvin Lu
 
 
