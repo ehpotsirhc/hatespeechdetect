@@ -26,7 +26,7 @@ tensorboard
 1) Clone the repository  
 2) Download, extract and move the data into the right place  
 3) Run the XClass tests to reproduce the results  
-- for "run.sh", arg0=CPU_number, arg1=Dataset
+- for "run.sh", arg0=GPU_number, arg1=Dataset
 - datasets have been aggregate on a [personal server](https://pineapple.wtf/hate-speech-detection-reproducibility/) for easy access; the scripts will download from this server. You may alternatively opt to download the datasets from each of the classifiers' original data sources by following the instructions provided within each classifier's readme page.
 
 Follow the steps below to download and run the tests...

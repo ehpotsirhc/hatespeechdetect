@@ -65,3 +65,5 @@ classifiers/XClass/data/*
 
 datasets/downloaded/
 
+tmp/
+
