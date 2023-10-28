@@ -383,6 +383,11 @@ def load_and_cache_examples(args, task, tokenizer, evaluate=False):
         examples = (
             processor.get_test_examples(args.data_dir) if evaluate else processor.get_train_examples(args.data_dir)
         )
+        for example in examples:
+            example.text_b = ''
+            # What happened...
+            # examples = [InputExample(guid:str, text_a:str, text_b:str, label:int)] 
+            # examples[x].text_b = must be converted from None to str
         features = convert_examples_to_features(
             examples, tokenizer, max_length=args.max_seq_length, label_list=label_list, output_mode=output_mode,
         )
