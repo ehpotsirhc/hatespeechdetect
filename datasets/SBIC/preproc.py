@@ -61,7 +61,7 @@ def main(fpath_data):
     train_preproc['target_minority'] = hlp.target_minority                      # add in the "target_minority" column
     train_preproc = train_preproc.reset_index(drop=True)                        # reset the DataFrame index given the current curation
 
-    classes = list(train_preproc.target_minority.unique())                      # the unique class labels
+    classes = sorted(train_preproc.target_minority.unique())                    # the unique class labels
     labels = [classes.index(c) for c in train_preproc.target_minority]          # the class labels as an integer (required by XClass)
 
     train_postproc = pd.DataFrame()                                             # create the post-processing DataFrame
