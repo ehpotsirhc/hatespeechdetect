@@ -22,14 +22,13 @@ tensorboard
 ```
 
 
-
 ## To Run the Reproducibility Study - BERT
-#### Data Preparation for BERT
+#### Data Preparation for both BERT and XClass
 1) Clone the repository  
 2) CD into the SBIC dataset directory (datasets/SBIC)
 3) The SBIC data is already preprocessed from its 
 [original form](https://maartensap.com/social-bias-frames/), and included 
-in the repository for your convenience. Run the additoinal scripts following 
+in the repository for your convenience. Run the additional scripts following 
 the instructions below to prepare the data for the BERT versus XClass comparison:
 ```
 cd hatespeechdetect/datasets/SBIC/
@@ -37,6 +36,9 @@ python3 csv2txt.py SBIC.v2.agg.cmb_processed.csv
 python3 csv2classes.py SBIC.v2.agg.cmb_processed.csv
 ```
 #### Running BERT
+The BERT experiment is not likely to take up more than 5 GBs of GPU memory 
+when using the provided parameters.
+
 1) CD into the BERT classifier directory
 2) Run main.py
 ```
