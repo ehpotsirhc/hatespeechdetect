@@ -22,8 +22,8 @@ def main(fname_csv_input, **kwargs):
 if __name__ == '__main__':
     if len(sys.argv) >= 3:
         main(sys.argv[1], column_name=sys.argv[2])
-    elif len(sys.argv) == 3:
-        main(sys.argv)
+    elif len(sys.argv) == 2:
+        main(sys.argv[1])
     else:
         print('  To run, use...')
         print('    python csv2classes.py <input_csv_filename> <column_to_extract>\n')
