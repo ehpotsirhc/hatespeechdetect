@@ -77,9 +77,9 @@ def main(fpath_data):
     # # OUTPUT THE PROCESSED DATA TO DISK
     # # Uncomment the following 3 lines to save/overwrite the existing files
     train_postproc.to_csv('%s_processed.csv' % fpath_data.stem, index=None)                 # full CSV
-    train_postproc.post.to_csv('%s_dataset.txt' % fpath_data.stem, header=None, index=None) # list of text posts
-    train_postproc.label.to_csv('%s_labels.txt' % fpath_data.stem, header=None, index=None) # list of class labels as integers
-    np.savetxt('%s_classes.txt' % fpath_data.stem, classes, fmt='%s')                       # list of classes
+    # train_postproc.post.to_csv('%s_dataset.txt' % fpath_data.stem, header=None, index=None) # list of text posts
+    # train_postproc.label.to_csv('%s_labels.txt' % fpath_data.stem, header=None, index=None) # list of class labels as integers
+    # np.savetxt('%s_classes.txt' % fpath_data.stem, classes, fmt='%s')                       # list of classes
 
 
 if __name__ == '__main__':
