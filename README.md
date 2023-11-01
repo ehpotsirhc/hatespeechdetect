@@ -44,7 +44,7 @@ cd hatespeechdetect/classifiers/BERT/src
 python3 main.py
 ```
 Optionally, you may supply your own dataset. Your dataset must follow the 
-format of the supplied dataset `datasets/SBIC/SBIC.v2.agg.cmb_processed.csv`. 
+format of the supplied dataset `<REPOSITORY>/datasets/SBIC/SBIC.v2.agg.cmb_processed.csv`. 
 To run your own dataset using our supplied BERT, use the following command:
 ```
 python3 main.py <dataset.csv>
@@ -58,6 +58,8 @@ python3 main.py --testing-only
    or
 python3 main.py <dataset.py> --testing-only
 ```
+If you would like to make further changes to the provided parameters, 
+most of the changes can be done by modifying `<REPOSITORY>/classifiers/BERT/src/config.py`.
 
 
 ## To Run Using Demo (Classifier-Provided) Datasets...
