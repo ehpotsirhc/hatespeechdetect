@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # SBIC Data Pre-Processing
 # Christophe Leung, Iris Chen, Kelvin Lu
 # October 29, 2023
