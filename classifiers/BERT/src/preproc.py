@@ -82,9 +82,9 @@ class Preproc:
 
         if mode=='original':
             df_train, df_val, df_test = Preproc.train_val_split(df_training, **Hyperparams.training_orig)
-            df_train.to_csv(Constants.DPATH_DATA/'vset_orig_train.tsv', sep='\t')
-            df_val.to_csv(Constants.DPATH_DATA/'vset_orig_val.tsv', sep='\t')
-            df_test.to_csv(Constants.DPATH_DATA/'vset_orig_test.tsv', sep='\t')
+            df_train.to_csv(Constants.DPATH_DATA/'vset_orig_train.tsv', sep='\t', index=False)
+            df_val.to_csv(Constants.DPATH_DATA/'vset_orig_val.tsv', sep='\t', index=False)
+            df_test.to_csv(Constants.DPATH_DATA/'vset_orig_test.tsv', sep='\t', index=False)
         
         elif mode=='augmented':
             # combine the augmented training data with original training data (that is not part of the testing data)
