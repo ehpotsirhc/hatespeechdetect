@@ -26,16 +26,17 @@ class Constants:
 class Hyperparams:
     train_mode = 'original'
     training_orig = {
-        'trainfrac': 0.8, 
-        'testfrac': 0.1, 
+        'trainfrac': 0.75, 
+        'testfrac': 0.125, 
         'shuffle': True
     }
     training_misc = {
-        'trainfrac': 0.8, 
+        'trainfrac': 0.75, 
         'shuffle': True
     }
     model_Bert = BertForSequenceClassification.from_pretrained(
-            "bert-base-multilingual-uncased", 
+            "bert-base-uncased", 
+            # "bert-base-multilingual-uncased", 
             num_labels = len(Constants.LABELS), # the number of class labels
             output_attentions = False,          # should the model return attentions weights?
             output_hidden_states = False,       # should the model return all of the hidden states?
