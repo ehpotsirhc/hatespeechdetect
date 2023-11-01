@@ -27,9 +27,10 @@ tensorboard
 #### Data Preparation for BERT
 1) Clone the repository  
 2) CD into the SBIC dataset directory (datasets/SBIC)
-3) The SBIC data is already preprocessed since its original form. 
-Run the additoinal scripts following the instructions below to 
-prepare the data for the BERT versus XClass comparison:
+3) The SBIC data is already preprocessed from its 
+[original form](https://maartensap.com/social-bias-frames/), and included 
+in the repository for your convenience. Run the additoinal scripts following 
+the instructions below to prepare the data for the BERT versus XClass comparison:
 ```
 cd hatespeechdetect/datasets/SBIC/
 python3 csv2txt.py SBIC.v2.agg.cmb_processed.csv
