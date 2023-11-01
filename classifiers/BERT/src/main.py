@@ -11,13 +11,14 @@ from pathlib import Path
 from helpers2 import Helpers2 as hlp
 from config import Constants, Hyperparams, Data
 from preproc import Preproc
-import torch, sys
+import torch, sys, time
 import classify
 
 # =================================================================================================
 # Main Function
 
 def main(model_main, df_training, **kwargs):
+    testing_only = kwargs['testing_only'] if 'testing_only' in kwargs else False
     hyparams = kwargs['hyparams'] if 'hyparams' in kwargs else {}
     df_testing = kwargs['predict'] if 'predict' in kwargs else None
 
@@ -28,14 +29,15 @@ def main(model_main, df_training, **kwargs):
     # print train-/test-split stats
     Preproc.tvs_stats(train_set, val_set, test_texts)
     
-    # ------------------------------------------------------------
-    # train the model on the GPU
-    hlp.seed_everything()
-    model_main.cuda()
-    classify.model_train(model_main, train_set, val_set, **hyparams)
+    if not testing_only:
+        # ------------------------------------------------------------
+        # train the model on the GPU
+        hlp.seed_everything()
+        model_main.cuda()
+        classify.model_train(model_main, train_set, val_set, **hyparams)
 
-    # save the model (if necessary)
-    classify.model_save(Constants.MODEL, Constants.DPATH_MODEL/'model_cached.torch')
+        # save the model (if necessary)
+        classify.model_save(Constants.MODEL, Constants.DPATH_MODEL/'model_cached.torch')
 
     # ------------------------------------------------------------
     # error analysis on the trained model - print accuracy and 5 wrong predictions if available
@@ -70,7 +72,15 @@ Constants.MODEL = Hyperparams.model_Bert
 Data = Data()
 
 if __name__ == '__main__':
-    if len(sys.argv) == 2:
-        Data.init(sys.argv[1])
-        print('Using "%s" as the training data instead...\n' % sys.argv[1])
-    main(Constants.MODEL, Data.training, hyparams=Hyperparams.hyperparams)
+    fpath_training_custom = list(filter(lambda arg: arg.endswith('.csv'), sys.argv[1:]))
+    if len(fpath_training_custom) > 0:
+        print('Using "%s" as the training data instead...\n' % fpath_training_custom[0])
+        Data.init(fpath_training_custom[0])
+    if '--testing-only' in sys.argv:
+        print('Running in test-only (non-training) mode...\n')
+        main(Constants.MODEL, Data.training, hyparams=Hyperparams.hyperparams, testing_only=True)
+    else:
+        print('Running in full (train/validate/test) mode...')
+        print('Unsaved models will be overwritten. Use Control-C to terminate immediately...\n')
+        time.sleep(1)
+        main(Constants.MODEL, Data.training, hyparams=Hyperparams.hyperparams)

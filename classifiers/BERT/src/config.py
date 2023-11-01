@@ -15,10 +15,9 @@ import pandas as pd
 # -----------------------------------------------------------------------------
 # Constants
 class Constants:
-    DPATH_DATA = Path('../data/')
+    DPATH_DATA = Path('../../../datasets/SBIC/')
     DPATH_MODEL = Path('../models/')
-    # LABEL2ID = pd.read_json('../data/classes.json', orient='index').to_dict()[0]
-    LABELS = pd.read_csv(DPATH_DATA/'classes.txt', header=None)[0].to_list()
+    LABELS = pd.read_csv(Path(DPATH_DATA/'SBIC.v2.agg.cmb_classes.txt'), header=None)[0].to_list()
     GPU_DEVICE = None
     MODEL = None
 
