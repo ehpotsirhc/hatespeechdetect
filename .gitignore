@@ -68,3 +68,7 @@ datasets/downloaded/
 tmp/
 datasets/tmp_*/
 datasets/SBIC/
+
+classifiers/BERT/models/
+classifiers/BERT/data/
+classifiers/BERT/tmp/
