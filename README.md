@@ -22,7 +22,44 @@ tensorboard
 ```
 
 
-## To Run...
+
+## To Run the Reproducibility Study - BERT
+#### Data Preparation for BERT
+1) Clone the repository  
+2) CD into the SBIC dataset directory (datasets/SBIC)
+3) The SBIC data is already preprocessed since its original form. 
+Run the additoinal scripts following the instructions below to 
+prepare the data for the BERT versus XClass comparison:
+```
+cd hatespeechdetect/datasets/SBIC/
+python3 csv2txt.py SBIC.v2.agg.cmb_processed.csv
+python3 csv2classes.py SBIC.v2.agg.cmb_processed.csv
+```
+#### Running BERT
+1) CD into the BERT classifier directory
+2) Run main.py
+```
+cd hatespeechdetect/classifiers/BERT/src
+python3 main.py
+```
+Optionally, you may supply your own dataset. Your dataset must follow the 
+format of the supplied dataset `datasets/SBIC/SBIC.v2.agg.cmb_processed.csv`. 
+To run your own dataset using our supplied BERT, use the following command:
+```
+python3 main.py <dataset.csv>
+```
+Finally, to skip the training process and only retrieve the model results, 
+you may follow the command below. Do note that you must have run the training 
+at least once and have a model available in order to be able to skip directly 
+to the results analysis.
+```
+python3 main.py --testing-only
+   or
+python3 main.py <dataset.py> --testing-only
+```
+
+
+## To Run Using Demo (Classifier-Provided) Datasets...
 1) Clone the repository  
 2) Download, extract and move the data into the right place  
 3) Run the XClass tests to reproduce the results  
