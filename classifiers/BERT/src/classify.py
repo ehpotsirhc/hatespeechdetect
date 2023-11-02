@@ -15,7 +15,9 @@ from torch.optim import AdamW
 from sklearn.metrics import precision_score, recall_score, f1_score
 from config import Constants
 from preproc import Preproc
-import pandas as pd, numpy as np, torch, os
+import pandas as pd, numpy as np, torch, os, warnings
+
+warnings.filterwarnings('ignore') #ignore zero_dividion errors when evaluating
 
 # -----------------------------------------------------------------------------
 # Model Analysis
@@ -76,18 +78,29 @@ def get_validation_performance_with_labels(val_set, **kwargs):
     # Report the final accuracy for this validation run.
     labels_pred = labels_pred.astype('int')#+1
     avg_val_accuracy = total_correct / len(val_set)
+
     precision = precision_score(labels_true, labels_pred, average='micro')
     recall = recall_score(labels_true, labels_pred, average='micro')
     f1 = f1_score(labels_true, labels_pred, average='micro')
+
+    P_ma = precision_score(labels_true, labels_pred, average='macro')
+    P_mi = precision_score(labels_true, labels_pred, average='micro')
+    R_ma = recall_score(labels_true, labels_pred, average='macro')
+    R_mi = recall_score(labels_true, labels_pred, average='micro')
+    F1_ma = f1_score(labels_true, labels_pred, average='macro')
+    F1_mi = f1_score(labels_true, labels_pred, average='micro')
     # print('labels_pred:', labels_pred)
     # print('labels_true:', labels_true)
     print('Predictions Correct: %s/%s' % (total_correct, len(labels_pred)))
     print('Predictions Expected:', len(val_set))
     results = {
         'acc': avg_val_accuracy, 
-        'pre': precision , 
-        'rec': recall, 
-        'f1': f1, 
+        'P_ma': P_ma, 
+        'P_mi': P_mi, 
+        'R_ma': R_ma, 
+        'R_mi': R_mi, 
+        'F1_ma': F1_ma, 
+        'F1_mi': F1_mi, 
         'labels_pred':labels_pred, 
         'labels_true':labels_true
         }
@@ -153,10 +166,13 @@ def model_train(model, train_set, val_set, **kwargs):
             optimizer.step()
             
         # Measure the performance on the validation set after the completion of each epoch
-        val_acc = get_validation_performance_with_labels(val_set, batch_size=batch_size)
-        acc, pre, rec, f1 = val_acc['acc'], val_acc['pre'], val_acc['rec'], val_acc['f1']
+        vperf = get_validation_performance_with_labels(val_set, batch_size=batch_size)
+        acc, P_ma, P_mi, R_ma, R_mi, F1_ma, F1_mi = vperf['acc'], vperf['P_ma'], vperf['P_mi'], vperf['R_ma'], vperf['R_mi'], vperf['F1_ma'], vperf['F1_mi']
+        labels_pred, labels_true = vperf['labels_pred'], vperf['labels_true']
+        n_correct, n_total = (np.array(labels_pred)==np.array(labels_true)).sum(), len(labels_pred)
         print('Total Loss:', total_train_loss)
-        print('Validation Scores (acc/P/R/F1): %.5f / %.5f / %.5f/ %.5f' % (acc, pre, rec, f1))
+        print('Validation Accuracy: %s/%s  (%.5f%%)' % (n_correct, n_total, acc*100))
+        print('Validation Scores (P/R/F1) (Ma, Mi): (%.5f, %.5f) / (%.5f, %.5f)/ (%.5f, %.5f)' % (P_ma, P_mi, R_ma, R_mi, F1_ma, F1_mi))
     print('\nTraining Complete!\n\n')
 
 
@@ -211,11 +227,14 @@ def model_error(test_text, test_labels_true, **kwargs):
     n_correct = (np.array(labels_pred)==np.array(test_labels_true)).sum()
     n_total = len(labels_pred)
     n_correct_percentage = n_correct/n_total*100
-    precision = precision_score(test_labels_true, labels_pred, average='micro')
-    recall = recall_score(test_labels_true, labels_pred, average='micro')
-    f1 = f1_score(test_labels_true, labels_pred, average='micro')
-    print('Predictions Correct: %s/%s  (%.5f%%)' % (n_correct, n_total, n_correct_percentage))
-    print('Precision/Recall/F1: [%.5f / %.5f / %.5f]' % (precision, recall, f1))
+    P_ma = precision_score(test_labels_true, labels_pred, average='macro')
+    P_mi = precision_score(test_labels_true, labels_pred, average='micro')
+    R_ma = recall_score(test_labels_true, labels_pred, average='macro')
+    R_mi = recall_score(test_labels_true, labels_pred, average='micro')
+    F1_ma = f1_score(test_labels_true, labels_pred, average='macro')
+    F1_mi = f1_score(test_labels_true, labels_pred, average='micro')
+    print('Prediction Accuracy: %s/%s  (%.5f%%)' % (n_correct, n_total, n_correct_percentage))
+    print('Precision/Recall/F1 (Macro, Micro): [(%.5f, %.5f)/ (%.5f, %.5f) / (%.5f, %.5f)]' % (P_ma, P_mi, R_ma, R_mi, F1_ma, F1_mi))
 
     if indices_wrong.size >= n_err:
         idx_examples = np.random.choice(indices_wrong, size=n_err, replace=False).tolist()
