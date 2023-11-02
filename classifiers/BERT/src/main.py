@@ -40,8 +40,8 @@ def main(model_main, df_training, **kwargs):
         classify.model_save(Constants.MODEL, Constants.DPATH_MODEL/'model_cached.torch')
 
     # ------------------------------------------------------------
-    # error analysis on the trained model - print accuracy and 5 wrong predictions if available
-    hlp.separator(msg='Model Accuracy & Error Analysis - print 5 incorrect predictions if available\n')
+    # error analysis on the trained model - print scores and wrong predictions if available
+    hlp.separator(msg='Model Performance & Error Analysis\n')
     hlp.seed_everything()
     torch.cuda.empty_cache()
     model_main.load_state_dict(torch.load(Constants.DPATH_MODEL/'model_cached.torch'))
@@ -73,6 +73,8 @@ Data = Data()
 
 if __name__ == '__main__':
     fpath_training_custom = list(filter(lambda arg: arg.endswith('.csv'), sys.argv[1:]))
+    time_start = time.time()
+    print('Program started at  %s' % time_start)
     if len(fpath_training_custom) > 0:
         print('Using "%s" as the training data instead...\n' % fpath_training_custom[0])
         Data.init(fpath_training_custom[0])
@@ -84,3 +86,9 @@ if __name__ == '__main__':
         print('Unsaved models will be overwritten. Use Control-C to terminate immediately...\n')
         time.sleep(1)
         main(Constants.MODEL, Data.training, hyparams=Hyperparams.hyperparams)
+    hlp.separator()
+    time_finit = time.time()
+    time_total = time_finit - time_start
+    print('Program finished at %s' % time_finit)
+    print('Total Runtime: %.3fs  (%.0fm %.0fs)\n\n' % (time_total, time_total//60, time_total%60))
+
