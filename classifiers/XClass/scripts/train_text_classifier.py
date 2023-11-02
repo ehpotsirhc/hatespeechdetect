@@ -77,11 +77,11 @@ def compute_metrics(task_name, preds, labels):
     return {
         "f1_micro": f1_score(labels, preds, average='micro'),
         "f1_macro": f1_score(labels, preds, average='macro'),
-        "accuracy": accuracy_score(true_class, predicted_class),
-        "precision_macro": precision_score(true_class, predicted_class, average='macro'),
-        "precision_micro": precision_score(true_class, predicted_class, average='micro'),
-        "recall_macro": recall_score(true_class, predicted_class, average='macro'),
-        "recall_micro": recall_score(true_class, predicted_class, average='micro')
+        "accuracy": accuracy_score(labels, preds),
+        "precision_macro": precision_score(labels, preds, average='macro'),
+        "precision_micro": precision_score(labels, preds, average='micro'),
+        "recall_macro": recall_score(labels, preds, average='macro'),
+        "recall_micro": recall_score(labels, preds, average='micro')
     }
 
 
