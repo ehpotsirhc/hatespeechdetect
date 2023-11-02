@@ -71,7 +71,8 @@ def error_analysis(labels_true, labels_pred, **kwargs):
         combined = list(zip(idx_examples, labels_pred, labels_true, examples))
         return [{'index':e[0], 'label_pred':(labels[e[1]], e[1]), 'label_true':(labels[e[2]], e[2]), 'text':e[3]} for e in combined]
     else:
-        return 'There are less than %s incorrect examples.' % n_err
+        print('There are less than %s incorrect examples.' % n_err)
+        return []
 
 
 def evaluate_predictions(true_class, predicted_class, output_to_console=True, return_tuple=False):
