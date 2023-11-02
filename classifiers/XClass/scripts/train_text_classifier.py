@@ -26,7 +26,7 @@ import random
 import numpy as np
 import torch
 import torch.nn as nn
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
 from torch.nn import CrossEntropyLoss, MSELoss
 from torch.utils.data import (DataLoader, RandomSampler, SequentialSampler,
                               TensorDataset)
@@ -76,7 +76,12 @@ class DProcessor(DataProcessor):
 def compute_metrics(task_name, preds, labels):
     return {
         "f1_micro": f1_score(labels, preds, average='micro'),
-        "f1_macro": f1_score(labels, preds, average='macro')
+        "f1_macro": f1_score(labels, preds, average='macro'),
+        "accuracy": accuracy_score(true_class, predicted_class),
+        "precision_macro": precision_score(true_class, predicted_class, average='macro'),
+        "precision_micro": precision_score(true_class, predicted_class, average='micro'),
+        "recall_macro": recall_score(true_class, predicted_class, average='macro'),
+        "recall_micro": recall_score(true_class, predicted_class, average='micro')
     }
 
 

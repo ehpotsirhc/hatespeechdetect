@@ -74,8 +74,6 @@ def error_analysis(labels_true, labels_pred, **kwargs):
         return 'There are less than %s incorrect examples.' % n_err
 
 
-
-
 def evaluate_predictions(true_class, predicted_class, output_to_console=True, return_tuple=False):
     confusion = confusion_matrix(true_class, predicted_class)
     if output_to_console:
