@@ -7,7 +7,8 @@ export MKL_NUM_THREADS=1
 model_name_or_path=bert-base-uncased
 
 # this is also defined in utils.py, make sure to change both when changing.
-output_dir=../models/${model_name_or_path}_${train_suffix}
+# output_dir=../models/${model_name_or_path}_${train_suffix}
+output_dir=../models/custom
 
 # the paper's version has been commented out in order to run it 
 # on Chris's GPU (see below)
@@ -34,7 +35,7 @@ CUDA_VISIBLE_DEVICES=$GPU python train_text_classifier.py \
   --model_name_or_path ${model_name_or_path} \
   --task_name ${dataset_name} \
   --train_suffix ${train_suffix} \
-  --test_suffix "" \
+  --test_suffix test \
   --output_dir ${output_dir} \
   --do_train \
   --do_eval \
