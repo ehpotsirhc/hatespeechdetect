@@ -54,7 +54,7 @@ def most_common(L):
 
 
 def error_analysis(labels_true, labels_pred, **kwargs):
-    fpath_test_text = Path(DATA_FOLDER_PATH)/'SBIC/dataset.txt'
+    fpath_test_text = kwargs['fpath_test_text'] if 'fpath_test_text' in kwargs else Path(DATA_FOLDER_PATH)/'SBIC/dataset.txt'
     labels = pd.read_csv(Path(DATA_FOLDER_PATH)/'SBIC/classes.txt', header=None)[0].to_list()
     test_text = pd.read_csv(fpath_test_text, header=None)[0].to_list()
     
