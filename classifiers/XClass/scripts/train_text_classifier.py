@@ -42,6 +42,7 @@ from transformers import \
 
 from preprocessing_utils import load_classnames, load_labels, load_text
 from utils import DATA_FOLDER_PATH
+from utils import error_analysis
 
 
 class DProcessor(DataProcessor):
@@ -344,7 +345,12 @@ def evaluate(args, model, tokenizer, prefix=""):
         else:
             raise ValueError("No other `output_mode` for XNLI.")
         result = compute_metrics(eval_task, preds, out_label_ids)
+        errors = error_analysis(out_label_ids, preds, fpath_test_text='../data/datasets/SBICcustom_train_test/dataset.txt')
         results.update(result)
+
+        print('\nExamples of Incorrect Predictions...')
+        [print('- '*25, '\n', e) for e in errors]
+        print()
 
         output_eval_file = os.path.join(eval_output_dir, prefix, "eval_results.txt")
         with open(output_eval_file, "w") as writer:
