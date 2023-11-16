@@ -96,6 +96,7 @@ class StaticReps:
 
     @staticmethod
     def tokenize_and_get_wordrep(texts, tokenizer, counts, args, model):
+        logging.info('Retrieving word representations')
         updated_counts = {k: c for k, c in counts.items() if c >= args.vocab_min_occurrence}
         word_rep, word_count, tokenization_info = {}, {}, []
 
@@ -129,16 +130,18 @@ class StaticReps:
 
     @staticmethod
     def write_tokenized(args, tokenization_info):
-        os.makedirs(Constants.DPATH_CACHED) if not Constants.DPATH_CACHED.exists() else None
         fname_tokenized = 'tokenization_lm-%s-%s.pickle' % (args.lm_type, args.layer)
+        logging.info('Caching tokenized data to "%s"' % fname_tokenized)
+        os.makedirs(Constants.DPATH_CACHED) if not Constants.DPATH_CACHED.exists() else None
         with open(Constants.DPATH_CACHED/fname_tokenized, 'wb') as f:
             pickle.dump({'tokenization_info': tokenization_info}, f, protocol=4)
 
     
     @staticmethod
     def write_staticreps(args, vocab_words, static_word_representations, vocab_occurrence):
-        os.makedirs(Constants.DPATH_CACHED) if not Constants.DPATH_CACHED.exists() else None
         fname_staticreps = 'static_repr_lm-%s-%s.pickle' % (args.lm_type, args.layer)
+        logging.info('Caching static word representations to "%s"' % fname_staticreps)
+        os.makedirs(Constants.DPATH_CACHED) if not Constants.DPATH_CACHED.exists() else None
         with open(Constants.DPATH_CACHED/fname_staticreps, 'wb') as f:
             pickle.dump({
                 "static_word_representations": static_word_representations,
