@@ -2,3 +2,4 @@
 scripts/runs/
 data/intermediate_data/*
 models/*
+src/_cached/
