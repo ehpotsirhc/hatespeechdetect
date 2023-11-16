@@ -8,6 +8,7 @@
 
 # -----------------------------------------------------------------------------
 from pathlib import Path
+from config import StaticRepParams as SRP
 import logging, sys, argparse, time
 
 # =================================================================================================
@@ -24,15 +25,36 @@ class Bootstrap:
             datefmt='%Y-%m-%d %H:%M:%S', 
             level=logging.INFO)
         logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
-        logging.info('Logger initialized...')
         return logging
 
     @staticmethod
     def argparse_init():
         parser = argparse.ArgumentParser()
         parser.add_argument("--dataset", type=str, required=False)
+        parser.add_argument("--random_state", type=int, default=SRP.random_state)
+        parser.add_argument("--lm_type", type=str, default=SRP.lm_type)
+        parser.add_argument("--vocab_min_occurrence", type=int, default=SRP.vocab_min_occurrence)
+        parser.add_argument("--layer", type=int, default=SRP.layer)
         args = parser.parse_args()
         return args
+
+
+class StaticRepUtils:
+    @staticmethod
+    def tensor_to_numpy(tensor):
+        return tensor.clone().detach().cpu().numpy()
+
+
+# -----------------------------------------------------------------------------
+# handles data-related basic tasks
+class DataUtils:
+    @staticmethod
+    def load_classnames(dfcol_classes):
+        return sorted(dfcol_classes.unique())
+    
+    @staticmethod
+    def load_text(dfcol_texts):
+        return dfcol_texts.apply(lambda txt: txt.lower()).tolist()
 
 
 # -----------------------------------------------------------------------------

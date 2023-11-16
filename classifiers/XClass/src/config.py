@@ -9,16 +9,25 @@
 # -----------------------------------------------------------------------------
 from pathlib import Path
 import pandas as pd
+from transformers import BertModel, BertTokenizer
 
 # -----------------------------------------------------------------------------
 # Constants
 class Constants:
     DPATH_DATA = Path('../../../datasets/SBIC/')
-    # DPATH_MODEL = Path('../models/')
+    DPATH_CACHED = Path('_cached')
+    DPATH_MODELS = Path('_models')
     FPATH_DATA = Path('SBIC.v2.agg.cmb_processed.csv')
     # LABELS = pd.read_csv(Path(DPATH_DATA/'SBIC.v2.agg.cmb_classes.txt'), header=None)[0].to_list()
     # GPU_DEVICE = None
-    # MODEL = None
+    MODEL = (BertModel, BertTokenizer, 'bert-base-uncased')
+
+
+class StaticRepParams:
+    random_state = 42
+    lm_type = 'bbu'
+    vocab_min_occurrence = 5
+    layer = 12  # last layer of BERT
 
 
 # Model Hyperparameters
@@ -29,12 +38,13 @@ class Hyperparams:
 # Data Imports
 class Data:
     def __init__(self):
-        self.fpath_training = Constants.DPATH_DATA/Constants.FPATH_DATA
-        self.training = None
-        self.init(self.fpath_training)
+        self.fpath_data = Constants.DPATH_DATA/Constants.FPATH_DATA
+        self.data = None
+        self.init(self.fpath_data)
 
-    def init(self, fpath_training):
-        fpath = Path(fpath_training)
-        self.fpath_training = fpath
-        self.training = pd.read_csv(fpath).rename(columns={'post': 'sentence', 'label': 'label_ID'})
+    def init(self, fpath_data):
+        fpath = Path(fpath_data)
+        self.fpath_data = fpath
+        self.data = pd.read_csv(fpath).rename(
+            columns={'post': 'text', 'label': 'label_id', 'target_minority': 'label_name'})
 
