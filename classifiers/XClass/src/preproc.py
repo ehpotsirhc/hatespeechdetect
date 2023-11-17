@@ -131,8 +131,7 @@ class StaticReps:
 
 
     @staticmethod
-    def write_tokenized(args, tokenization_info):
-        fname_tokenized = 'tokenization_lm-%s-%s.pickle' % (args.lm_type, args.layer)
+    def write_tokenized(fname_tokenized, tokenization_info):
         logging.info('Caching tokenized data to "%s"' % fname_tokenized)
         os.makedirs(Constants.DPATH_CACHED) if not Constants.DPATH_CACHED.exists() else None
         with open(Constants.DPATH_CACHED/fname_tokenized, 'wb') as f:
@@ -140,8 +139,7 @@ class StaticReps:
 
 
     @staticmethod
-    def write_staticreps(args, vocab_words, static_word_representations, vocab_occurrence):
-        fname_staticreps = 'static_repr_lm-%s-%s.pickle' % (args.lm_type, args.layer)
+    def write_staticreps(fname_staticreps, vocab_words, static_word_representations, vocab_occurrence):
         logging.info('Caching static word representations to "%s"' % fname_staticreps)
         os.makedirs(Constants.DPATH_CACHED) if not Constants.DPATH_CACHED.exists() else None
         with open(Constants.DPATH_CACHED/fname_staticreps, 'wb') as f:
@@ -155,20 +153,25 @@ class StaticReps:
     
     # -------------------------------------------------------------------------
     def main(self, args, texts):
-        logging.info('Computing Static Representations...')
-        model_class, tokenizer_class, pretrained_weights = Constants.MODEL
-        tokenizer = tokenizer_class.from_pretrained(pretrained_weights)
-        model = model_class.from_pretrained(pretrained_weights, output_hidden_states=True)
-        model.eval()
-        model.cuda()
+        fname_tokenized = 'tokenization_lm-%s-%s.pickle' % (args.lm_type, args.layer)
+        fname_staticreps = 'static_repr_lm-%s-%s.pickle' % (args.lm_type, args.layer)
+        if (Constants.DPATH_CACHED/fname_tokenized).exists() and (Constants.DPATH_CACHED/fname_staticreps).exists():
+            logging.info('Static Representations already computed. Using cached version...')
+        else:
+            logging.info('Computing Static Representations...')
+            model_class, tokenizer_class, pretrained_weights = Constants.MODEL
+            tokenizer = tokenizer_class.from_pretrained(pretrained_weights)
+            model = model_class.from_pretrained(pretrained_weights, output_hidden_states=True)
+            model.eval()
+            model.cuda()
 
-        counts, tokenized_text, tokenized_to_id_indicies, tokenids_chunks = self.tokenize_and_count_tokens(texts, tokenizer)
-        word_rep, word_count, tokenization_info = self.tokenize_and_get_wordrep(texts, tokenizer, counts, args, model)
-        word_avg, vocab_words, static_word_representations, vocab_occurrence = self.vocab_stats(word_rep, word_count)
+            counts, tokenized_text, tokenized_to_id_indicies, tokenids_chunks = self.tokenize_and_count_tokens(texts, tokenizer)
+            word_rep, word_count, tokenization_info = self.tokenize_and_get_wordrep(texts, tokenizer, counts, args, model)
+            word_avg, vocab_words, static_word_representations, vocab_occurrence = self.vocab_stats(word_rep, word_count)
 
-        self.write_tokenized(args, tokenization_info)
-        self.write_staticreps(args, vocab_words, static_word_representations, vocab_occurrence)
-        logging.info('Completed Static Representation computations')
+            self.write_tokenized(fname_tokenized, tokenization_info)
+            self.write_staticreps(fname_staticreps, vocab_words, static_word_representations, vocab_occurrence)
+            logging.info('Completed Static Representation computations')
 
 
 
@@ -376,8 +379,7 @@ class ClsOrientedReps:
     
         
     @staticmethod
-    def write_classdocreps(args, class_words, class_representations, document_representations):
-        fname_classdocreps = 'document_repr_lm-%s-%s-%s-%s.pickle' % (args.lm_type, args.layer, args.attention_mechanism, args.T)
+    def write_classdocreps(fname_classdocreps, class_words, class_representations, document_representations):
         logging.info('Caching class-oriented document representations to "%s"' % fname_classdocreps)
         os.makedirs(Constants.DPATH_CACHED) if not Constants.DPATH_CACHED.exists() else None
         with open(Constants.DPATH_CACHED/fname_classdocreps, 'wb') as f:
@@ -390,20 +392,23 @@ class ClsOrientedReps:
 
     # -------------------------------------------------------------------------
     def main(self, args, classnames):
-        logging.info('Computing Class-Oriented Document Representations...')
-        vocab = self.read_staticreps(args)
-        vocab_words, static_word_representations = vocab['vocab_words'], vocab['static_word_representations']
-        word_to_index, vocab_occurrence = vocab['word_to_index'], vocab['vocab_occurrence']
-        tokenization_info = self.read_tokenized(args)
-        
-        class_words, cls_repr = self.get_class_representations(
-            args, classnames, static_word_representations, word_to_index, vocab_words)
-        
-        class_representations, document_representations = self.tokenize_representations(
-            args, vocab, tokenization_info, cls_repr)
+        fname_classdocreps = 'document_repr_lm-%s-%s-%s-%s.pickle' % (args.lm_type, args.layer, args.attention_mechanism, args.T)
+        if (Constants.DPATH_CACHED/fname_classdocreps).exists():
+            logging.info('Class-Oriented Document Representations already computed. Using cached version...')
+        else:
+            logging.info('Computing Class-Oriented Document Representations...')
+            vocab = self.read_staticreps(args)
+            vocab_words, static_word_representations = vocab['vocab_words'], vocab['static_word_representations']
+            word_to_index, vocab_occurrence = vocab['word_to_index'], vocab['vocab_occurrence']
+            tokenization_info = self.read_tokenized(args)
+            
+            class_words, cls_repr = self.get_class_representations(
+                args, classnames, static_word_representations, word_to_index, vocab_words)
+            
+            class_representations, document_representations = self.tokenize_representations(
+                args, vocab, tokenization_info, cls_repr)
 
-        self.write_classdocreps(args, class_words, class_representations, document_representations)
+            self.write_classdocreps(fname_classdocreps, class_words, class_representations, document_representations)
 
-        logging.info('Completed Class-Oriented Document Representation computations')
-
+            logging.info('Completed Class-Oriented Document Representation computations')
 
