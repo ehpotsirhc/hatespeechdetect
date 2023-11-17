@@ -10,7 +10,7 @@
 from pathlib import Path
 from config import StaticRepParams as SRP
 from config import ClsOrientedRepParams as CORP
-import logging, sys, argparse, time
+import logging, sys, argparse, time, numpy as np
 
 # =================================================================================================
 
@@ -46,6 +46,13 @@ class StaticRepUtils:
     @staticmethod
     def tensor_to_numpy(tensor):
         return tensor.clone().detach().cpu().numpy()
+
+
+# -----------------------------------------------------------------------------
+# utilities for Class Oriented Document Representations
+class ClsOrientedRepUtils:
+    def cosine_similarity_embeddings(emb_a, emb_b):
+        return np.dot(emb_a, np.transpose(emb_b)) / np.outer(np.linalg.norm(emb_a, axis=1), np.linalg.norm(emb_b, axis=1))
 
 
 # -----------------------------------------------------------------------------
