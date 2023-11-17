@@ -9,7 +9,9 @@
 # -----------------------------------------------------------------------------
 from config import Constants
 from utils import StaticRepUtils as SRU
+from utils import ClsOrientedRepUtils as CORU
 from collections import Counter
+from scipy.special import softmax
 import logging, string, tqdm, torch, os, pickle
 import numpy as np
 
@@ -136,7 +138,7 @@ class StaticReps:
         with open(Constants.DPATH_CACHED/fname_tokenized, 'wb') as f:
             pickle.dump({'tokenization_info': tokenization_info}, f, protocol=4)
 
-    
+
     @staticmethod
     def write_staticreps(args, vocab_words, static_word_representations, vocab_occurrence):
         fname_staticreps = 'static_repr_lm-%s-%s.pickle' % (args.lm_type, args.layer)
@@ -144,15 +146,16 @@ class StaticReps:
         os.makedirs(Constants.DPATH_CACHED) if not Constants.DPATH_CACHED.exists() else None
         with open(Constants.DPATH_CACHED/fname_staticreps, 'wb') as f:
             pickle.dump({
-                "static_word_representations": static_word_representations,
-                "vocab_words": vocab_words,
-                "word_to_index": {v: k for k, v in enumerate(vocab_words)},
-                "vocab_occurrence": vocab_occurrence,
+                'static_word_representations': static_word_representations,
+                'vocab_words': vocab_words,
+                'word_to_index': {v: k for k, v in enumerate(vocab_words)},
+                'vocab_occurrence': vocab_occurrence,
             }, f, protocol=4)
 
     
     # -------------------------------------------------------------------------
     def main(self, args, texts):
+        logging.info('Computing Static Representations...')
         model_class, tokenizer_class, pretrained_weights = Constants.MODEL
         tokenizer = tokenizer_class.from_pretrained(pretrained_weights)
         model = model_class.from_pretrained(pretrained_weights, output_hidden_states=True)
@@ -165,4 +168,242 @@ class StaticReps:
 
         self.write_tokenized(args, tokenization_info)
         self.write_staticreps(args, vocab_words, static_word_representations, vocab_occurrence)
+        logging.info('Completed Static Representation computations')
+
+
+
+# -----------------------------------------------------------------------------
+class ClsOrientedReps:
+    @staticmethod
+    def read_staticreps(args):
+        fname_staticreps = 'static_repr_lm-%s-%s.pickle' % (args.lm_type, args.layer)
+        logging.info('Reading static word representations from "%s"' % fname_staticreps)
+        with open(Constants.DPATH_CACHED/fname_staticreps, 'rb') as f:
+            return pickle.load(f)
+
+
+    @staticmethod
+    def read_tokenized(args):
+        fname_tokenized = 'tokenization_lm-%s-%s.pickle' % (args.lm_type, args.layer)
+        logging.info('Reading tokenized data from "%s"' % fname_tokenized)
+        with open(Constants.DPATH_CACHED/fname_tokenized, 'rb') as f:
+            tokenization_info = pickle.load(f)['tokenization_info']
+        return tokenization_info
+
+
+    @staticmethod
+    def rank_by_significance(embeddings, class_embeddings):
+        similarities = CORU.cosine_similarity_embeddings(embeddings, class_embeddings)
+        significance_score = [np.max(softmax(similarity)) for similarity in similarities]
+        significance_ranking = {i: r for r, i in enumerate(np.argsort(-np.array(significance_score)))}
+        return significance_ranking
+
+
+    @staticmethod
+    def rank_by_relation(embeddings, class_embeddings):
+        relation_score = CORU.cosine_similarity_embeddings(embeddings, [np.average(class_embeddings, axis=0)]).reshape((-1))
+        relation_ranking = {i: r for r, i in enumerate(np.argsort(-np.array(relation_score)))}
+        return relation_ranking
+
+    
+    @staticmethod
+    def mul(l):
+        m = 1
+        for x in l:
+            m *= x + 1
+        return m
+
+
+    @staticmethod
+    def average_with_harmonic_series(representations):
+        weights = [0.0] * len(representations)
+        for i in range(len(representations)):
+            weights[i] = 1. / (i + 1)
+        return np.average(representations, weights=weights, axis=0)
+
+
+    @staticmethod
+    def weights_from_ranking(rankings):
+        if len(rankings) == 0:
+            assert False
+        if type(rankings[0]) == type(0):
+            rankings = [rankings]
+        rankings_num = len(rankings)
+        rankings_len = len(rankings[0])
+        assert all(len(rankings[i]) == rankings_len for i in range(rankings_num))
+        total_score = []
+        for i in range(rankings_len):
+            total_score.append(ClsOrientedReps.mul(ranking[i] for ranking in rankings))
+
+        total_ranking = {i: r for r, i in enumerate(np.argsort(np.array(total_score)))}
+        if rankings_num == 1:
+            assert all(total_ranking[i] == rankings[0][i] for i in total_ranking.keys())
+        weights = [0.0] * rankings_len
+        for i in range(rankings_len):
+            weights[i] = 1. / (total_ranking[i] + 1)
+        return weights
+
+
+    @staticmethod
+    def weight_sentence_with_attention(vocab, tokenized_text, contextualized_word_representations, class_representations,
+                                    attention_mechanism):
+        assert len(tokenized_text) == len(contextualized_word_representations)
+
+        contextualized_representations = []
+        static_representations = []
+
+        static_word_representations = vocab["static_word_representations"]
+        word_to_index = vocab["word_to_index"]
+        for i, token in enumerate(tokenized_text):
+            if token in word_to_index:
+                static_representations.append(static_word_representations[word_to_index[token]])
+                contextualized_representations.append(contextualized_word_representations[i])
+        if len(contextualized_representations) == 0:
+            print("Empty Sentence (or sentence with no words that have enough frequency)")
+            return np.average(contextualized_word_representations, axis=0)
+
+        significance_ranking = ClsOrientedReps.rank_by_significance(contextualized_representations, class_representations)
+        relation_ranking = ClsOrientedReps.rank_by_relation(contextualized_representations, class_representations)
+        significance_ranking_static = ClsOrientedReps.rank_by_significance(static_representations, class_representations)
+        relation_ranking_static = ClsOrientedReps.rank_by_relation(static_representations, class_representations)
+        if attention_mechanism == "none":
+            weights = [1.0] * len(contextualized_representations)
+        elif attention_mechanism == "significance":
+            weights = ClsOrientedReps.weights_from_ranking(significance_ranking)
+        elif attention_mechanism == "relation":
+            weights = ClsOrientedReps.weights_from_ranking(relation_ranking)
+        elif attention_mechanism == "significance_static":
+            weights = ClsOrientedReps.weights_from_ranking(relation_ranking)
+        elif attention_mechanism == "relation_static":
+            weights = ClsOrientedReps.weights_from_ranking(relation_ranking)
+        elif attention_mechanism == "mixture":
+            weights = ClsOrientedReps.weights_from_ranking((significance_ranking,
+                                            relation_ranking,
+                                            significance_ranking_static,
+                                            relation_ranking_static))
+        else:
+            assert False
+        return np.average(contextualized_representations, weights=weights, axis=0)
+
+
+    @staticmethod
+    def weight_sentence(model, vocab, tokenization_info, class_representations, attention_mechanism, layer):
+        tokenized_text, tokenized_to_id_indicies, tokenids_chunks = tokenization_info
+        contextualized_word_representations = StaticReps.handle_sentence(
+            model, layer, tokenized_text, tokenized_to_id_indicies, tokenids_chunks)
+        document_representation = ClsOrientedReps.weight_sentence_with_attention(
+            vocab, tokenized_text, contextualized_word_representations, class_representations, attention_mechanism)
+        return document_representation
+
+
+    @staticmethod
+    def get_class_representations(args, classnames, static_word_representations, word_to_index, vocab_words):
+        logging.info('Retrieving class representations...')
+        finished_class = set()
+        masked_words = set(classnames)
+        cls_repr = [None for _ in range(len(classnames))]
+        class_words = [[classnames[cls]] for cls in range(len(classnames))]
+        class_words_representations = [[static_word_representations[word_to_index[classnames[cls]]]]
+                                    for cls in range(len(classnames))]
+        for t in range(1, args.T):
+            class_representations = [ClsOrientedReps.average_with_harmonic_series(class_words_representation)
+                                    for class_words_representation in class_words_representations]
+            cosine_similarities = CORU.cosine_similarity_embeddings(static_word_representations,
+                                                            class_representations)
+            nearest_class = cosine_similarities.argmax(axis=1)
+            similarities = cosine_similarities.max(axis=1)
+            for cls in range(len(classnames)):
+                if cls in finished_class:
+                    continue
+                highest_similarity = -1.0
+                highest_similarity_word_index = -1
+                lowest_masked_words_similarity = 1.0
+                existing_class_words = set(class_words[cls])
+                stop_criterion = False
+                for i, word in enumerate(vocab_words):
+                    if nearest_class[i] == cls:
+                        if word not in masked_words:
+                            if similarities[i] > highest_similarity:
+                                highest_similarity = similarities[i]
+                                highest_similarity_word_index = i
+                        else:
+                            if word not in existing_class_words:
+                                stop_criterion = True
+                                break
+                            lowest_masked_words_similarity = min(lowest_masked_words_similarity, similarities[i])
+                    else:
+                        if word in existing_class_words:
+                            stop_criterion = True
+                            break
+                # the topmost t words are no longer the t words in class_words
+                if lowest_masked_words_similarity < highest_similarity:
+                    stop_criterion = True
+
+                if stop_criterion:
+                    finished_class.add(cls)
+                    class_words[cls] = class_words[cls][:-1]
+                    class_words_representations[cls] = class_words_representations[cls][:-1]
+                    cls_repr[cls] = ClsOrientedReps.average_with_harmonic_series(class_words_representations[cls])
+                    print('-'*60)
+                    logging.info('Word representations for class "%s" (label_id %s)...\n%s' % (
+                        classnames[cls], cls, ', '.join(class_words[cls])))
+                    break
+                class_words[cls].append(vocab_words[highest_similarity_word_index])
+                class_words_representations[cls].append(static_word_representations[highest_similarity_word_index])
+                masked_words.add(vocab_words[highest_similarity_word_index])
+                cls_repr[cls] = ClsOrientedReps.average_with_harmonic_series(class_words_representations[cls])
+            if len(finished_class) == len(classnames):
+                break
+        print()
+        return (class_words, cls_repr)
+
+
+    @staticmethod
+    def tokenize_representations(args, vocab, tokenization_info, cls_repr):
+        logging.info('Tokenizing representations...')
+        class_representations = np.array(cls_repr)
+        model_class, tokenizer_class, pretrained_weights = Constants.MODEL
+        model = model_class.from_pretrained(pretrained_weights, output_hidden_states=True)
+        model.eval()
+        model.cuda()
+        document_representations = []
+        for i, _tokenization_info in tqdm.tqdm(enumerate(tokenization_info), total=len(tokenization_info)):
+            document_representation = ClsOrientedReps.weight_sentence(
+                model, vocab, _tokenization_info, class_representations, args.attention_mechanism, args.layer)
+            document_representations.append(document_representation)
+        document_representations = np.array(document_representations)
+        return (class_representations, document_representations)
+    
+        
+    @staticmethod
+    def write_classdocreps(args, class_words, class_representations, document_representations):
+        fname_classdocreps = 'document_repr_lm-%s-%s-%s-%s.pickle' % (args.lm_type, args.layer, args.attention_mechanism, args.T)
+        logging.info('Caching class-oriented document representations to "%s"' % fname_classdocreps)
+        os.makedirs(Constants.DPATH_CACHED) if not Constants.DPATH_CACHED.exists() else None
+        with open(Constants.DPATH_CACHED/fname_classdocreps, 'wb') as f:
+            pickle.dump({
+                'class_words': class_words,
+                'class_representations': class_representations,
+                'document_representations': document_representations,
+            }, f, protocol=4)
+
+
+    # -------------------------------------------------------------------------
+    def main(self, args, classnames):
+        logging.info('Computing Class-Oriented Document Representations...')
+        vocab = self.read_staticreps(args)
+        vocab_words, static_word_representations = vocab['vocab_words'], vocab['static_word_representations']
+        word_to_index, vocab_occurrence = vocab['word_to_index'], vocab['vocab_occurrence']
+        tokenization_info = self.read_tokenized(args)
+        
+        class_words, cls_repr = self.get_class_representations(
+            args, classnames, static_word_representations, word_to_index, vocab_words)
+        
+        class_representations, document_representations = self.tokenize_representations(
+            args, vocab, tokenization_info, cls_repr)
+
+        self.write_classdocreps(args, class_words, class_representations, document_representations)
+
+        logging.info('Completed Class-Oriented Document Representation computations')
+
 

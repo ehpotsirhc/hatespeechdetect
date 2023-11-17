@@ -20,13 +20,15 @@ def main(args, logger):
     logger.info('Main function started'), logger.info(args)
     DataUtils = utils.DataUtils()
     StaticReps = preproc.StaticReps()
+    ClsOrientedReps = preproc.ClsOrientedReps()
     if args.dataset and args.dataset.endswith('.csv'):
         Data.init(args.dataset)
 
-    classnames = DataUtils.load_classnames(Data.data.label_name)
     texts = DataUtils.load_text(Data.data.text)
-    
+    classnames = DataUtils.load_classnames(Data.data.label_name)
+
     StaticReps.main(args, texts)
+    ClsOrientedReps.main(args, classnames)
 
     
     # train_set, val_set, test_labels, test_texts = Preproc.training_split_and_tensorify(df_training)
