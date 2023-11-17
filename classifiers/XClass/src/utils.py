@@ -42,6 +42,8 @@ class Bootstrap:
         return args
 
 
+# -----------------------------------------------------------------------------
+# utilities for Static Representations
 class StaticRepUtils:
     @staticmethod
     def tensor_to_numpy(tensor):
