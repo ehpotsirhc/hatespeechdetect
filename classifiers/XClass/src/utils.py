@@ -50,7 +50,7 @@ class StaticRepUtils:
 class DataUtils:
     @staticmethod
     def load_classnames(dfcol_classes):
-        return sorted(dfcol_classes.unique())
+        return sorted(dfcol_classes.str.lower().unique())
     
     @staticmethod
     def load_text(dfcol_texts):
