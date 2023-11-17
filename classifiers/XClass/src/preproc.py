@@ -156,7 +156,7 @@ class StaticReps:
         fname_tokenized = 'tokenization_lm-%s-%s.pickle' % (args.lm_type, args.layer)
         fname_staticreps = 'static_repr_lm-%s-%s.pickle' % (args.lm_type, args.layer)
         if (Constants.DPATH_CACHED/fname_tokenized).exists() and (Constants.DPATH_CACHED/fname_staticreps).exists():
-            logging.info('Static Representations already computed. Using cached version...')
+            logging.info('Static Representations already computed. Using cached version.')
         else:
             logging.info('Computing Static Representations...')
             model_class, tokenizer_class, pretrained_weights = Constants.MODEL
@@ -300,6 +300,13 @@ class ClsOrientedReps:
 
 
     @staticmethod
+    def print_wordreps(classnames, class_words, cls):
+        print('-'*60)
+        logging.info('Word representations for class "%s" (label_id %s)...\n%s' % (
+            classnames[cls], cls, ', '.join(class_words[cls])))
+
+
+    @staticmethod
     def get_class_representations(args, classnames, static_word_representations, word_to_index, vocab_words):
         logging.info('Retrieving class representations...')
         finished_class = set()
@@ -347,9 +354,7 @@ class ClsOrientedReps:
                     class_words[cls] = class_words[cls][:-1]
                     class_words_representations[cls] = class_words_representations[cls][:-1]
                     cls_repr[cls] = ClsOrientedReps.average_with_harmonic_series(class_words_representations[cls])
-                    print('-'*60)
-                    logging.info('Word representations for class "%s" (label_id %s)...\n%s' % (
-                        classnames[cls], cls, ', '.join(class_words[cls])))
+                    print_wordreps(classnames, class_words, cls)
                     break
                 class_words[cls].append(vocab_words[highest_similarity_word_index])
                 class_words_representations[cls].append(static_word_representations[highest_similarity_word_index])
@@ -394,7 +399,11 @@ class ClsOrientedReps:
     def main(self, args, classnames):
         fname_classdocreps = 'document_repr_lm-%s-%s-%s-%s.pickle' % (args.lm_type, args.layer, args.attention_mechanism, args.T)
         if (Constants.DPATH_CACHED/fname_classdocreps).exists():
-            logging.info('Class-Oriented Document Representations already computed. Using cached version...')
+            logging.info('Class-Oriented Document Representations already computed. Using cached version.')
+            with open(Constants.DPATH_CACHED/fname_classdocreps, 'rb') as f:
+                classdocreps = pickle.load(f)
+            for class_id, class_name in enumerate(classnames):
+                self.print_wordreps(classnames, classdocreps['class_words'], class_id)
         else:
             logging.info('Computing Class-Oriented Document Representations...')
             vocab = self.read_staticreps(args)
