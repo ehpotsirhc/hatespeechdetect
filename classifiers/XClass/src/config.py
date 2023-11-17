@@ -30,6 +30,14 @@ class StaticRepParams:
     layer = 12  # last layer of BERT
 
 
+class ClsOrientedRepParams:
+    random_state = StaticRepParams.random_state
+    lm_type = StaticRepParams.lm_type
+    layer = StaticRepParams.layer
+    T = 100
+    attention_mechanism = 'mixture'
+
+
 # Model Hyperparameters
 class Hyperparams:
     train_mode = 'original'

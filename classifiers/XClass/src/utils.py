@@ -9,6 +9,7 @@
 # -----------------------------------------------------------------------------
 from pathlib import Path
 from config import StaticRepParams as SRP
+from config import ClsOrientedRepParams as CORP
 import logging, sys, argparse, time
 
 # =================================================================================================
@@ -35,6 +36,8 @@ class Bootstrap:
         parser.add_argument("--lm_type", type=str, default=SRP.lm_type)
         parser.add_argument("--vocab_min_occurrence", type=int, default=SRP.vocab_min_occurrence)
         parser.add_argument("--layer", type=int, default=SRP.layer)
+        parser.add_argument("--T", type=int, default=CORP.T)
+        parser.add_argument("--attention_mechanism", type=str, default=CORP.attention_mechanism)
         args = parser.parse_args()
         return args
 
