@@ -30,7 +30,7 @@ class StaticRepParams:
     layer = 12  # last layer of BERT
 
 
-class ClsOrientedRepParams:
+class ClassDocRepParams:
     random_state = StaticRepParams.random_state
     lm_type = StaticRepParams.lm_type
     layer = StaticRepParams.layer

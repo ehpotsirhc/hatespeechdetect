@@ -9,7 +9,7 @@
 # -----------------------------------------------------------------------------
 from pathlib import Path
 from config import StaticRepParams as SRP
-from config import ClsOrientedRepParams as CORP
+from config import ClassDocRepParams as CDRP
 import logging, sys, argparse, time, numpy as np
 
 # =================================================================================================
@@ -36,8 +36,8 @@ class Bootstrap:
         parser.add_argument("--lm_type", type=str, default=SRP.lm_type)
         parser.add_argument("--vocab_min_occurrence", type=int, default=SRP.vocab_min_occurrence)
         parser.add_argument("--layer", type=int, default=SRP.layer)
-        parser.add_argument("--T", type=int, default=CORP.T)
-        parser.add_argument("--attention_mechanism", type=str, default=CORP.attention_mechanism)
+        parser.add_argument("--T", type=int, default=CDRP.T)
+        parser.add_argument("--attention_mechanism", type=str, default=CDRP.attention_mechanism)
         args = parser.parse_args()
         return args
 
@@ -52,7 +52,7 @@ class StaticRepUtils:
 
 # -----------------------------------------------------------------------------
 # utilities for Class Oriented Document Representations
-class ClsOrientedRepUtils:
+class ClassDocRepUtils:
     def cosine_similarity_embeddings(emb_a, emb_b):
         return np.dot(emb_a, np.transpose(emb_b)) / np.outer(np.linalg.norm(emb_a, axis=1), np.linalg.norm(emb_b, axis=1))
 
