@@ -10,7 +10,7 @@
 from pathlib import Path
 from config import Constants, Hyperparams, Data
 import sys, time, argparse
-import utils, preproc
+import utils, preproc, classify
 
 
 # =================================================================================================
@@ -22,16 +22,20 @@ def main(args, logger):
     StaticReps = preproc.StaticReps()
     ClassDocReps = preproc.ClassDocReps()
     DocClassAlign = preproc.DocClassAlign()
+    ClassifyPrep = classify.Prep()
     if args.dataset and args.dataset.name.endswith('.csv'):
         Data.init(args.dataset)
 
     texts = DataUtils.load_text(Data.data.text)
     classnames = DataUtils.load_classnames(Data.data.label_name)
+    labels = DataUtils.load_labels(Data.data.label_id)
 
     StaticReps.main(args, texts)            # compute vocab from text
     ClassDocReps.main(args, classnames)     # associate vocab with classes; build doc representations
     DocClassAlign.main(args, classnames)    # align documents to their closest classes
     
+    ClassifyPrep.main(args, texts, labels)
+
 
     
     # train_set, val_set, test_labels, test_texts = Preproc.training_split_and_tensorify(df_training)

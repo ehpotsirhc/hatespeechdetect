@@ -44,6 +44,10 @@ class DocClassAlignParams:
     cluster_method = 'gmm'  # options are "gmm" or "kmeans"
 
 
+class ClassifyPrepParams:
+    confidence_threshold = 0.5
+
+
 # Model Hyperparameters
 class Hyperparams:
     train_mode = 'original'
