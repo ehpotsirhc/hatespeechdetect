@@ -38,6 +38,12 @@ class ClassDocRepParams:
     attention_mechanism = 'mixture'
 
 
+class DocClassAlignParams:
+    random_state = StaticRepParams.random_state
+    pca = 64                # number of dimensions projected to in PCA; use -1 to skip PCA
+    cluster_method = 'gmm'  # options are "gmm" or "kmeans"
+
+
 # Model Hyperparameters
 class Hyperparams:
     train_mode = 'original'

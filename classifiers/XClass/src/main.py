@@ -21,7 +21,8 @@ def main(args, logger):
     DataUtils = utils.DataUtils()
     StaticReps = preproc.StaticReps()
     ClassDocReps = preproc.ClassDocReps()
-    if args.dataset and args.dataset.endswith('.csv'):
+    DocClassAlign = preproc.DocClassAlign()
+    if args.dataset and args.dataset.name.endswith('.csv'):
         Data.init(args.dataset)
 
     texts = DataUtils.load_text(Data.data.text)
@@ -29,6 +30,7 @@ def main(args, logger):
 
     StaticReps.main(args, texts)            # compute vocab from text
     ClassDocReps.main(args, classnames)     # associate vocab with classes; build doc representations
+    DocClassAlign.main(args, classnames)    # align documents to their closest classes
     
 
     

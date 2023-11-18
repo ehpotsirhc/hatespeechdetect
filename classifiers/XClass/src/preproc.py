@@ -12,6 +12,9 @@ from utils import StaticRepUtils as SRU
 from utils import ClassDocRepUtils as CDRU
 from collections import Counter
 from scipy.special import softmax
+from sklearn.decomposition import PCA
+from sklearn.mixture import GaussianMixture
+from sklearn.cluster import KMeans
 import logging, string, tqdm, torch, os, pickle
 import numpy as np
 
@@ -407,6 +410,7 @@ class ClassDocReps:
                 classdocreps = pickle.load(f)
             for class_id, class_name in enumerate(classnames):
                 self.print_wordreps(classnames, classdocreps['class_words'], class_id)
+            print()
         else:
             logging.info('Computing Class-Oriented Document Representations...')
             vocab = self.read_staticreps(args)
@@ -423,4 +427,116 @@ class ClassDocReps:
             self.write_classdocreps(fname_classdocreps, class_words, class_representations, document_representations)
 
             logging.info('Completed Class-Oriented Document Representation computations')
+
+
+
+# -----------------------------------------------------------------------------
+# Document-Class Alignment; aligns each document to its nearest class
+class DocClassAlign:
+    @staticmethod
+    def read_classdocreps(lm_type, document_repr_type):
+        fname_classdocreps = 'document_repr_lm-%s-%s.pickle' % (lm_type, document_repr_type)
+        logging.info('Reading class-oriented document representations from "%s"' % fname_classdocreps)
+        with open(Constants.DPATH_CACHED/fname_classdocreps, 'rb') as f:
+            return pickle.load(f)
+    
+    @staticmethod
+    def perform_pca(args, document_representations, class_representations):
+        if args.pca > 0:
+            logging.info('Performing PCA with n_dim=%s' % args.pca)
+            _pca = PCA(n_components=args.pca, random_state=args.random_state)
+            document_representations = _pca.fit_transform(document_representations)
+            class_representations = _pca.transform(class_representations)
+            logging.info('Post-PCA explained variance: %s' % sum(_pca.explained_variance_ratio_))
+        else:
+            logging.info('Skipping PCA')
+        return (document_representations, class_representations)
+    
+
+    @staticmethod
+    def align_docs_gmm(document_representations, class_representations, n_classes, random_state):
+        logging.info('Aligning documents using Gaussian mixture models (GMM)')
+        cosine_similarities = CDRU.cosine_similarity_embeddings(document_representations, class_representations)
+        document_class_assignment = np.argmax(cosine_similarities, axis=1)
+        document_class_assignment_matrix = np.zeros((document_representations.shape[0], n_classes))
+        for i in range(document_representations.shape[0]):
+            document_class_assignment_matrix[i][document_class_assignment[i]] = 1.0
+        gmm = GaussianMixture(n_components=n_classes, covariance_type='tied',
+                              random_state=random_state,
+                              n_init=999, warm_start=True)
+        gmm.converged_ = 'HACK'
+        gmm._initialize(document_representations, document_class_assignment_matrix)
+        gmm.lower_bound_ = -np.infty
+        gmm.fit(document_representations)
+        documents_to_class = gmm.predict(document_representations)
+        centers = gmm.means_
+        distance = -gmm.predict_proba(document_representations) + 1
+        return (documents_to_class, centers, distance)
+
+
+    @staticmethod
+    def align_docs_kmeans(document_representations, class_representations, n_classes, random_state):
+        logging.info('Aligning documents using k-means...')
+        kmeans = KMeans(n_clusters=n_classes, init=class_representations, random_state=random_state)
+        kmeans.fit(document_representations)
+        documents_to_class = kmeans.predict(document_representations)
+        centers = kmeans.cluster_centers_
+        distance = np.zeros((document_representations.shape[0], centers.shape[0]), dtype=float)
+        for i, _emb_a in enumerate(document_representations):
+            for j, _emb_b in enumerate(centers):
+                distance[i][j] = np.linalg.norm(_emb_a - _emb_b)
+        return (documents_to_class, centers, distance)
+
+
+    @staticmethod
+    def write_aligned(fname_aligned, save_dict_data):
+        logging.info('Caching aligned documents to "%s"' % fname_aligned)
+        os.makedirs(Constants.DPATH_CACHED) if not Constants.DPATH_CACHED.exists() else None
+        with open(Constants.DPATH_CACHED/fname_aligned, 'wb') as f:
+            pickle.dump(save_dict_data, f)
+
+
+    def main(self, args, classnames):
+        document_repr_type = '%s-%s' % (args.attention_mechanism, args.T)
+        lm_type = '%s-%s' % (args.lm_type, args.layer)
+
+        fname_aligned = 'data.pca%s.clus%s.%s.%s.%s.pickle' % (
+            args.pca, args.cluster_method, lm_type, document_repr_type, args.random_state)
+
+        if (Constants.DPATH_CACHED/fname_aligned).exists():
+            logging.info('Documents already aligned. Using cached version.')
+        else:
+            logging.info('Performing Document-Class Alignment...')
+            
+            save_dict_data = {}
+            n_classes = len(classnames)
+
+            classdocreps = self.read_classdocreps(lm_type, document_repr_type)
+            document_representations = classdocreps['document_representations']
+            class_representations = classdocreps['class_representations']
+            repr_prediction = np.argmax(CDRU.cosine_similarity_embeddings(document_representations, class_representations), axis=1)
+
+            document_representations, class_representations = self.perform_pca(
+                args, document_representations, class_representations)
+
+            if args.cluster_method == 'gmm':
+                documents_to_class, centers, distance = self.align_docs_gmm(
+                    document_representations, class_representations, n_classes, args.random_state)
+            elif args.cluster_method == 'kmeans':
+                documents_to_class, centers, distance = self.align_docs_kmeans(
+                    document_representations, class_representations, n_classes, args.random_state)
+            
+            save_dict_data['dataset_name'] = args.dataset.name
+            save_dict_data['pca'] = args.pca
+            save_dict_data['cluster_method'] = args.cluster_method
+            save_dict_data['lm_type'] = lm_type
+            save_dict_data['document_repr_type'] = document_repr_type
+            save_dict_data['random_state'] = args.random_state
+            save_dict_data['repr_prediction'] = repr_prediction
+            save_dict_data['documents_to_class'] = documents_to_class
+            save_dict_data['centers'] = centers
+            save_dict_data['distance'] = distance
+            
+            self.write_aligned(fname_aligned, save_dict_data)
+            logging.info('Completed Document-Class Alignment')
 

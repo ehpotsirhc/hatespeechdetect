@@ -8,8 +8,10 @@
 
 # -----------------------------------------------------------------------------
 from pathlib import Path
+from config import Constants
 from config import StaticRepParams as SRP
 from config import ClassDocRepParams as CDRP
+from config import DocClassAlignParams as DCAP
 import logging, sys, argparse, time, numpy as np
 
 # =================================================================================================
@@ -30,14 +32,17 @@ class Bootstrap:
 
     @staticmethod
     def argparse_init():
+        fpath_dataset = Constants.DPATH_DATA/Constants.FPATH_DATA
         parser = argparse.ArgumentParser()
-        parser.add_argument("--dataset", type=str, required=False)
+        parser.add_argument("--dataset", type=str, default=fpath_dataset)
         parser.add_argument("--random_state", type=int, default=SRP.random_state)
         parser.add_argument("--lm_type", type=str, default=SRP.lm_type)
         parser.add_argument("--vocab_min_occurrence", type=int, default=SRP.vocab_min_occurrence)
         parser.add_argument("--layer", type=int, default=SRP.layer)
         parser.add_argument("--T", type=int, default=CDRP.T)
         parser.add_argument("--attention_mechanism", type=str, default=CDRP.attention_mechanism)
+        parser.add_argument("--pca", type=int, default=DCAP.pca)
+        parser.add_argument("--cluster_method", type=str, default=DCAP.cluster_method)
         args = parser.parse_args()
         return args
 
