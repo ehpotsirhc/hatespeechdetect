@@ -158,7 +158,8 @@ class StaticReps:
     def main(self, args, texts):
         fname_tokenized = 'tokenization_lm-%s-%s.pickle' % (args.lm_type, args.layer)
         fname_staticreps = 'static_repr_lm-%s-%s.pickle' % (args.lm_type, args.layer)
-        if (Constants.DPATH_CACHED/fname_tokenized).exists() and (Constants.DPATH_CACHED/fname_staticreps).exists():
+        if (Constants.DPATH_CACHED/fname_tokenized).exists() and \
+            (Constants.DPATH_CACHED/fname_staticreps).exists() and not args.skipcached:
             logging.info('Static Representations already computed. Using cached version.')
         else:
             logging.info('Computing Static Representations...')
@@ -404,7 +405,7 @@ class ClassDocReps:
     # -------------------------------------------------------------------------
     def main(self, args, classnames):
         fname_classdocreps = 'document_repr_lm-%s-%s-%s-%s.pickle' % (args.lm_type, args.layer, args.attention_mechanism, args.T)
-        if (Constants.DPATH_CACHED/fname_classdocreps).exists():
+        if (Constants.DPATH_CACHED/fname_classdocreps).exists() and not args.skipcached:
             logging.info('Class-Oriented Document Representations already computed. Using cached version.')
             with open(Constants.DPATH_CACHED/fname_classdocreps, 'rb') as f:
                 classdocreps = pickle.load(f)
@@ -503,7 +504,7 @@ class DocClassAlign:
         fname_aligned = 'data.pca%s.clus%s.%s.%s.%s.pickle' % (
             args.pca, args.cluster_method, lm_type, document_repr_type, args.random_state)
 
-        if (Constants.DPATH_CACHED/fname_aligned).exists():
+        if (Constants.DPATH_CACHED/fname_aligned).exists() and not args.skipcached:
             logging.info('Documents already aligned. Using cached version.')
         else:
             logging.info('Performing Document-Class Alignment...')
