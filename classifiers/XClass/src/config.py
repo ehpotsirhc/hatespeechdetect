@@ -56,11 +56,6 @@ class ClassifyPrepParams:
     confidence_threshold = 0.5
 
 
-# Model Hyperparameters
-class Hyperparams:
-    train_mode = 'original'
-
-
 # Data Imports
 class Data:
     def __init__(self):
