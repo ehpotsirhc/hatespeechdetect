@@ -33,8 +33,7 @@ def main(args, logger):
     StaticReps.main(args, texts)            # compute vocab from text
     ClassDocReps.main(args, classnames)     # associate vocab with classes; build doc representations
     DocClassAlign.main(args, classnames)    # align documents to their closest classes
-    
-    ClassifyPrep.main(args, texts, labels)
+    ClassifyPrep.main(args, texts, labels)  # filter for the high-confidence texts; preps data for final training
 
 
     

@@ -16,6 +16,8 @@ from utils import EvalUtils, DataUtils
 
 # -----------------------------------------------------------------------------
 # Prepare Data for Text Classifer Training
+#   - filters for the high-confidence data from the pre-classified (aligned) dataset
+#   - consolidates the required data necessary for the final training/classification
 class Prep:
     @staticmethod
     def get_suffix(args):
