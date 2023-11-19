@@ -75,7 +75,11 @@ class DataUtils:
     
     @staticmethod
     def load_text(dfcol_texts):
-        return dfcol_texts.apply(lambda txt: txt.lower()).tolist()
+        raw_txt = dfcol_texts.tolist()
+        clean_txt = dfcol_texts.apply(TextProc.clean_str).tolist()
+        TextProc.text_statistics(raw_txt, 'raw_txt')
+        TextProc.text_statistics(clean_txt, 'cleaned_txt')
+        return clean_txt
     
     @staticmethod
     def load_labels(dfcol_labelid):
@@ -105,6 +109,55 @@ class Timer:
         Timer.finish = time.time()
         Timer.total = Timer.finish - Timer.start
         return Timer.finish
+
+
+# -----------------------------------------------------------------------------
+# text processing utils
+class TextProc:
+    @staticmethod
+    def clean_str(string):
+        string = TextProc.clean_html(string)
+        string = TextProc.clean_email(string)
+        string = re.sub(r"[^A-Za-z0-9(),.!?\"\']", " ", string)
+        string = re.sub(r"\s{2,}", " ", string)
+        return string.strip()
+
+    @staticmethod
+    def clean_html(string: str):
+        left_mark = '&lt;'
+        right_mark = '&gt;'
+        # for every line find matching left_mark and nearest right_mark
+        while True:
+            next_left_start = string.find(left_mark)
+            if next_left_start == -1:
+                break
+            next_right_start = string.find(right_mark, next_left_start)
+            if next_right_start == -1:
+                print("Right mark without Left: " + string)
+                break
+            # print("Removing " + string[next_left_start: next_right_start + len(right_mark)])
+            # clean_html.clean_links.append(string[next_left_start: next_right_start + len(right_mark)])
+            string = string[:next_left_start] + " " + string[next_right_start + len(right_mark):]
+        return string
+
+    @staticmethod
+    def clean_email(string: str):
+        return " ".join([s for s in string.split() if "@" not in s])
+
+    @staticmethod
+    def text_statistics(text, name="default"):
+        sz = len(text)
+        tmp_text = [s.split(" ") for s in text]
+        tmp_list = [len(doc) for doc in tmp_text]
+        len_max = max(tmp_list)
+        len_avg = np.average(tmp_list)
+        len_std = np.std(tmp_list)
+        print(f"\n### Dataset statistics for {name}: ###")
+        print('# of documents is: {}'.format(sz))
+        print('Document max length: {} (words)'.format(len_max))
+        print('Document average length: {} (words)'.format(len_avg))
+        print('Document length std: {} (words)'.format(len_std))
+        print(f"#######################################")
 
 
 # -----------------------------------------------------------------------------
