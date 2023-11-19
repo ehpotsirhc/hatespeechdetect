@@ -156,8 +156,8 @@ class StaticReps:
     
     # -------------------------------------------------------------------------
     def main(self, args, texts):
-        fname_tokenized = 'tokenization_lm-%s-%s.pickle' % (args.lm_type, args.layer)
-        fname_staticreps = 'static_repr_lm-%s-%s.pickle' % (args.lm_type, args.layer)
+        fname_tokenized = Constants.FPATH_STATICREPS_TOKENS
+        fname_staticreps = Constants.FPATH_STATICREPS_DATA
         if (Constants.DPATH_CACHED/fname_tokenized).exists() and \
             (Constants.DPATH_CACHED/fname_staticreps).exists() and not args.skipcached:
             logging.info('Static Representations already computed. Using cached version.')
@@ -185,16 +185,16 @@ class StaticReps:
 #   - vectorizes each doc based on class vocab
 class ClassDocReps:
     @staticmethod
-    def read_staticreps(args):
-        fname_staticreps = 'static_repr_lm-%s-%s.pickle' % (args.lm_type, args.layer)
+    def read_staticreps():
+        fname_staticreps = Constants.FPATH_STATICREPS_DATA
         logging.info('Reading static word representations from "%s"' % fname_staticreps)
         with open(Constants.DPATH_CACHED/fname_staticreps, 'rb') as f:
             return pickle.load(f)
 
 
     @staticmethod
-    def read_tokenized(args):
-        fname_tokenized = 'tokenization_lm-%s-%s.pickle' % (args.lm_type, args.layer)
+    def read_tokenized():
+        fname_tokenized = Constants.FPATH_STATICREPS_TOKENS
         logging.info('Reading tokenized data from "%s"' % fname_tokenized)
         with open(Constants.DPATH_CACHED/fname_tokenized, 'rb') as f:
             tokenization_info = pickle.load(f)['tokenization_info']
@@ -404,7 +404,7 @@ class ClassDocReps:
 
     # -------------------------------------------------------------------------
     def main(self, args, classnames):
-        fname_classdocreps = 'document_repr_lm-%s-%s-%s-%s.pickle' % (args.lm_type, args.layer, args.attention_mechanism, args.T)
+        fname_classdocreps = Constants.FPATH_CLASSDOCREPS_DATA
         if (Constants.DPATH_CACHED/fname_classdocreps).exists() and not args.skipcached:
             logging.info('Class-Oriented Document Representations already computed. Using cached version.')
             with open(Constants.DPATH_CACHED/fname_classdocreps, 'rb') as f:
@@ -414,10 +414,9 @@ class ClassDocReps:
             print()
         else:
             logging.info('Computing Class-Oriented Document Representations...')
-            vocab = self.read_staticreps(args)
+            vocab, tokenization_info = self.read_staticreps(), self.read_tokenized()
             vocab_words, static_word_representations = vocab['vocab_words'], vocab['static_word_representations']
             word_to_index, vocab_occurrence = vocab['word_to_index'], vocab['vocab_occurrence']
-            tokenization_info = self.read_tokenized(args)
             
             class_words, cls_repr = self.get_class_representations(
                 args, classnames, static_word_representations, word_to_index, vocab_words)
@@ -435,8 +434,8 @@ class ClassDocReps:
 # Document-Class Alignment; aligns each document to its nearest class
 class DocClassAlign:
     @staticmethod
-    def read_classdocreps(lm_type, document_repr_type):
-        fname_classdocreps = 'document_repr_lm-%s-%s.pickle' % (lm_type, document_repr_type)
+    def read_classdocreps():
+        fname_classdocreps = Constants.FPATH_CLASSDOCREPS_DATA
         logging.info('Reading class-oriented document representations from "%s"' % fname_classdocreps)
         with open(Constants.DPATH_CACHED/fname_classdocreps, 'rb') as f:
             return pickle.load(f)
@@ -501,8 +500,7 @@ class DocClassAlign:
         document_repr_type = '%s-%s' % (args.attention_mechanism, args.T)
         lm_type = '%s-%s' % (args.lm_type, args.layer)
 
-        fname_aligned = 'data.pca%s.clus%s.%s.%s.%s.pickle' % (
-            args.pca, args.cluster_method, lm_type, document_repr_type, args.random_state)
+        fname_aligned = Constants.FPATH_DOCCLASSALIGN_DATA
 
         if (Constants.DPATH_CACHED/fname_aligned).exists() and not args.skipcached:
             logging.info('Documents already aligned. Using cached version.')
@@ -512,7 +510,7 @@ class DocClassAlign:
             save_dict_data = {}
             n_classes = len(classnames)
 
-            classdocreps = self.read_classdocreps(lm_type, document_repr_type)
+            classdocreps = self.read_classdocreps()
             document_representations = classdocreps['document_representations']
             class_representations = classdocreps['class_representations']
             repr_prediction = np.argmax(CDRU.cosine_similarity_embeddings(document_representations, class_representations), axis=1)
