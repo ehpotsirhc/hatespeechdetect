@@ -72,7 +72,8 @@ class DataUtils:
     @staticmethod
     def load_classnames(dfcol_classes):
         classnames = sorted(dfcol_classes.str.lower().unique())
-        classnames.insert(0, classnames.pop(classnames.index('lgbt')))
+        if 'lgbt' in classnames:
+            classnames.insert(0, classnames.pop(classnames.index('lgbt')))
         return classnames
     
     @staticmethod
