@@ -269,7 +269,7 @@ class ClassDocReps:
                 static_representations.append(static_word_representations[word_to_index[token]])
                 contextualized_representations.append(contextualized_word_representations[i])
         if len(contextualized_representations) == 0:
-            print("Empty Sentence (or sentence with no words that have enough frequency)")
+            # print("Empty Sentence (or sentence with no words that have enough frequency)")
             return np.average(contextualized_word_representations, axis=0)
 
         significance_ranking = ClassDocReps.rank_by_significance(contextualized_representations, class_representations)
