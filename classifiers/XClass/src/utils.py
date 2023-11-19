@@ -81,6 +81,14 @@ class DataUtils:
     def load_labels(dfcol_labelid):
         return dfcol_labelid.tolist()
 
+    @staticmethod
+    def write_json(data, fpath_output, *args):
+        logging.info(args[0]) if len(args) > 0 else None
+        fpath_output = Path(fpath_output)
+        os.makedirs(fpath_output.parent) if not fpath_output.parent.exists() else None
+        with open(fpath_output, 'w') as f:
+            json.dump(data, f, indent=4)
+
 
 # -----------------------------------------------------------------------------
 # handles the main program's timers

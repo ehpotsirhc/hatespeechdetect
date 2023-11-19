@@ -9,8 +9,8 @@
 # -----------------------------------------------------------------------------
 from config import Constants
 import logging, pickle
-import numpy as np
-from utils import EvalUtils
+import numpy as np, os
+from utils import EvalUtils, DataUtils
 
 # =================================================================================================
 
@@ -52,13 +52,39 @@ class Prep:
             docs_selected.extend(confident_documents)
         docs_selected = sorted(docs_selected)
         texts_selected = [texts[i] for i in docs_selected]
-        classes_selected = [docs_to_class[i] for i in docs_selected]
-        return (docs_selected, texts_selected, classes_selected)
-    
-    
+        labelspred_selected = [docs_to_class[i] for i in docs_selected]
+        return (docs_selected, texts_selected, labelspred_selected)
+
+
+    @staticmethod
+    def write_data(docs_selected, texts_selected, labelstrue_selected, labelspred_selected):
+        DataUtils.write_json(docs_selected, Constants.DPATH_CACHED/'selected_docids.json', 
+            'Caching confidence-filtered docs IDs to "docids_selected.json"')
+        
+        os.makedirs(Constants.DPATH_CACHED) if not Constants.DPATH_CACHED.exists() else None
+        
+        assert len(texts_selected) == len(labelstrue_selected)
+        
+        fpath_selected_texts = Constants.DPATH_CACHED/'selected_texts.txt'
+        with open(fpath_selected_texts, 'w') as f:
+            logging.info('Caching confidence-filtered texts to "%s"' % fpath_selected_texts)
+            f.writelines(['%s\n'%line for line in texts_selected])
+        
+        fpath_selected_labelstrue = Constants.DPATH_CACHED/'selected_labelstrue.txt'
+        with open(fpath_selected_labelstrue, 'w') as f:
+            logging.info('Caching confidence-filtered true labels to "%s"' % fpath_selected_labelstrue)
+            f.writelines(['%s\n'%line for line in labelstrue_selected])
+        
+        fpath_selected_labelspred = Constants.DPATH_CACHED/'selected_labelspred.txt'
+        with open(fpath_selected_labelspred, 'w') as f:
+            logging.info('Caching confidence-filtered predicted labels to "%s"' % fpath_selected_labelspred)
+            f.writelines(['%s\n'%line for line in labelspred_selected])
+
+
+
     # -------------------------------------------------------------------------
-    def main(self, args, texts, labels):
-        logging.info('Preparing Data for Training...')
+    def main(self, args, texts, labels_true):
+        logging.info('Consolidating high-confidence aligned data for training...')
         suffix = self.get_suffix(args)
         data_aligned = self.read_aligned(suffix)
 
@@ -69,15 +95,12 @@ class Prep:
         pseudo_doc_class_with_conf = self.get_doc_confidences(
             n_classes, n_docs, docs_to_class, distance)
 
-        labels_true = labels
-
-        docs_selected, texts_selected, classes_pred = self.filter_for_confident(
+        docs_selected, texts_selected, labelspred_selected = self.filter_for_confident(
             args, n_classes, pseudo_doc_class_with_conf, texts, docs_to_class)
 
-        classes_true = [labels_true[i] for i in docs_selected]
+        labelstrue_selected = [labels_true[doc_id] for doc_id in docs_selected]
 
-        np_classes_true, np_classes_pred = np.array(classes_true), np.array(classes_pred)
+        EvalUtils.evaluate_predictions(labelstrue_selected, labelspred_selected)
 
-
-        EvalUtils.evaluate_predictions(classes_true, classes_pred)
-
+        self.write_data(docs_selected, texts_selected, labelstrue_selected, labelspred_selected)
+        
