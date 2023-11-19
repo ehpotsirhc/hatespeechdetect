@@ -71,7 +71,9 @@ class ClassDocRepUtils:
 class DataUtils:
     @staticmethod
     def load_classnames(dfcol_classes):
-        return sorted(dfcol_classes.str.lower().unique())
+        classnames = sorted(dfcol_classes.str.lower().unique())
+        classnames.insert(0, classnames.pop(classnames.index('lgbt')))
+        return classnames
     
     @staticmethod
     def load_text(dfcol_texts):
