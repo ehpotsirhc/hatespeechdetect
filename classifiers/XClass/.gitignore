@@ -3,3 +3,4 @@ scripts/runs/
 data/intermediate_data/*
 models/*
 src/_cached/
+src/_cached_old*/
