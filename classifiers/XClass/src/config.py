@@ -26,8 +26,7 @@ class Constants:
     FPATH_SELECTED_LABELSTRUE = Path('stage04_selected_labelstrue.txt')
     FPATH_SELECTED_LABELSPRED = Path('stage04_selected_labelspred.txt')
     FPATH_SELECTED_TEXTS = Path('stage04_selected_texts.txt')
-    # LABELS = pd.read_csv(Path(DPATH_DATA/'SBIC.v2.agg.cmb_classes.txt'), header=None)[0].to_list()
-    # GPU_DEVICE = None
+    FPATH_SELECTED_FINAL = Path('stage04_selected_final.csv')
     MODEL = (BertModel, BertTokenizer, 'bert-base-uncased')
 
 
@@ -54,6 +53,23 @@ class DocClassAlignParams:
 
 class ClassifyPrepParams:
     confidence_threshold = 0.5
+
+
+class ClassifyTrainParams:
+    # data_dir = Constants.DPATH_DATA
+    model_name_or_path = 'bert-base-uncased'
+    task_name = '_cached'
+    output_dir = 'OUTPUT_DIR'
+    do_train = True
+    do_eval = True
+    evaluate_during_training = True
+    learning_rate = 5e-5
+    num_train_epochs = 3.0
+    max_seq_length = 512
+    per_gpu_train_batch_size = 16
+    per_gpu_eval_batch_size = 16
+    logging_steps = 100000
+    save_steps = -1 
 
 
 # Data Imports

@@ -9,7 +9,7 @@
 # -----------------------------------------------------------------------------
 from config import Constants
 import logging, pickle
-import numpy as np, os
+import numpy as np, pandas as pd, os
 from utils import EvalUtils, DataUtils
 
 # =================================================================================================
@@ -52,7 +52,7 @@ class Prep:
 
 
     @staticmethod
-    def write_data(docs_selected, texts_selected, labelstrue_selected, labelspred_selected):
+    def write_data(docs_selected, texts_selected, labelstrue_selected, labelspred_selected, classnames):
         fpath_selected_docids = Constants.DPATH_CACHED/Constants.FPATH_SELECTED_DOCIDS
         DataUtils.write_json(docs_selected, fpath_selected_docids, 
             'Caching confidence-filtered document IDs to "%s"' % fpath_selected_docids)
@@ -62,24 +62,31 @@ class Prep:
         assert len(texts_selected) == len(labelstrue_selected)
         
         fpath_selected_texts = Constants.DPATH_CACHED/Constants.FPATH_SELECTED_TEXTS
-        with open(fpath_selected_texts, 'w') as f:
-            logging.info('Caching confidence-filtered texts to "%s"' % fpath_selected_texts)
-            f.writelines(['%s\n'%line for line in texts_selected])
+        # with open(fpath_selected_texts, 'w') as f:
+        #     logging.info('Caching confidence-filtered texts to "%s"' % fpath_selected_texts)
+        #     f.writelines(['%s\n'%line for line in texts_selected])
         
-        fpath_selected_labelstrue = Constants.DPATH_CACHED/Constants.FPATH_SELECTED_LABELSTRUE
-        with open(fpath_selected_labelstrue, 'w') as f:
-            logging.info('Caching confidence-filtered true labels to "%s"' % fpath_selected_labelstrue)
-            f.writelines(['%s\n'%line for line in labelstrue_selected])
+        # fpath_selected_labelstrue = Constants.DPATH_CACHED/Constants.FPATH_SELECTED_LABELSTRUE
+        # with open(fpath_selected_labelstrue, 'w') as f:
+        #     logging.info('Caching confidence-filtered true labels to "%s"' % fpath_selected_labelstrue)
+        #     f.writelines(['%s\n'%line for line in labelstrue_selected])
         
-        fpath_selected_labelspred = Constants.DPATH_CACHED/Constants.FPATH_SELECTED_LABELSPRED
-        with open(fpath_selected_labelspred, 'w') as f:
-            logging.info('Caching confidence-filtered predicted labels to "%s"' % fpath_selected_labelspred)
-            f.writelines(['%s\n'%line for line in labelspred_selected])
+        # fpath_selected_labelspred = Constants.DPATH_CACHED/Constants.FPATH_SELECTED_LABELSPRED
+        # with open(fpath_selected_labelspred, 'w') as f:
+        #     logging.info('Caching confidence-filtered predicted labels to "%s"' % fpath_selected_labelspred)
+        #     f.writelines(['%s\n'%line for line in labelspred_selected])
 
+        fpath_selected_final = Constants.DPATH_CACHED/Constants.FPATH_SELECTED_FINAL
+        pd_selected_final = pd.DataFrame()
+        pd_selected_final['post'] = texts_selected
+        pd_selected_final['label_name'] = [classnames[label_id] for label_id in labelspred_selected]
+        pd_selected_final['label_id'] = labelspred_selected
+        pd_selected_final.to_csv(fpath_selected_final, index=None)
+        
 
 
     # -------------------------------------------------------------------------
-    def main(self, args, texts, labels_true):
+    def main(self, args, texts, classnames, labels_true):
         logging.info('Consolidating high-confidence aligned data for training...')
         data_aligned = self.read_aligned()
 
@@ -97,5 +104,5 @@ class Prep:
 
         EvalUtils.evaluate_predictions(labelstrue_selected, labelspred_selected)
 
-        self.write_data(docs_selected, texts_selected, labelstrue_selected, labelspred_selected)
+        self.write_data(docs_selected, texts_selected, labelstrue_selected, labelspred_selected, classnames)
         
