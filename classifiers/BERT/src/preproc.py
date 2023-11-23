@@ -11,7 +11,7 @@ from pathlib import Path
 from .helpers import tokenize_and_format
 from .helpers2 import Helpers2 as hlp
 from .config import Constants, Hyperparams
-import pandas as pd, numpy as np, torch
+import pandas as pd, numpy as np, torch, os
 
 # -----------------------------------------------------------------------------
 # Data Preprocessing - Tokenize / Vectorize / Shuffle
@@ -79,26 +79,27 @@ class Preproc:
     @staticmethod
     def training_split_and_tensorify(df_training, **kwargs):
         mode = kwargs['mode'] if 'mode' in kwargs else Hyperparams.train_mode
+        os.makedirs(Constants.DPATH_CACHED) if not Constants.DPATH_CACHED.exists() else None
 
         if mode=='original':
             df_train, df_val, df_test = Preproc.train_val_split(df_training, **Hyperparams.training_orig)
-            df_train.to_csv(Constants.DPATH_DATA/'vset_orig_train.tsv', sep='\t', index=False)
-            df_val.to_csv(Constants.DPATH_DATA/'vset_orig_val.tsv', sep='\t', index=False)
-            df_test.to_csv(Constants.DPATH_DATA/'vset_orig_test.tsv', sep='\t', index=False)
+            df_train.to_csv(Constants.DPATH_CACHED/'vset_orig_train.tsv', sep='\t', index=False)
+            df_val.to_csv(Constants.DPATH_CACHED/'vset_orig_val.tsv', sep='\t', index=False)
+            df_test.to_csv(Constants.DPATH_CACHED/'vset_orig_test.tsv', sep='\t', index=False)
         
         elif mode=='augmented':
             # combine the augmented training data with original training data (that is not part of the testing data)
-            df_train_original = pd.read_csv(Constants.DPATH_DATA/'vset_orig_train.tsv', sep='\t')
-            df_val_original = pd.read_csv(Constants.DPATH_DATA/'vset_orig_val.tsv', sep='\t')
+            df_train_original = pd.read_csv(Constants.DPATH_CACHED/'vset_orig_train.tsv', sep='\t')
+            df_val_original = pd.read_csv(Constants.DPATH_CACHED/'vset_orig_val.tsv', sep='\t')
             df_augmented = pd.concat([df_train_original, df_val_original, df_training[300:]], axis=0)
             df_train, df_val, df_test = Preproc.train_val_split(df_augmented, **Hyperparams.training_misc)
             
             # set/override df_test, the test set, to be the original test set
-            df_test = pd.read_csv(Constants.DPATH_DATA/'vset_orig_test.tsv', sep='\t')
+            df_test = pd.read_csv(Constants.DPATH_CACHED/'vset_orig_test.tsv', sep='\t')
         
         else:
             df_train, df_val, df_test = Preproc.train_val_split(df_training, **Hyperparams.training_misc)
-            df_test = pd.read_csv(Constants.DPATH_DATA/'vset_orig_test.tsv', sep='\t')
+            df_test = pd.read_csv(Constants.DPATH_CACHED/'vset_orig_test.tsv', sep='\t')
             
         # convert dataframe data to tensors
         train_labels, train_texts = df_train.label_ID.values, df_train.sentence.values

@@ -16,6 +16,7 @@ import pandas as pd
 # Constants
 class Constants:
     DPATH_DATA = Path('../../datasets/SBIC/')
+    DPATH_CACHED = Path('../BERT/_cached')
     DPATH_MODELS = Path('../BERT/_models/')
     FPATH_MODEL = Path('model_cached_bert.torch')
     LABELS = pd.read_csv(Path(DPATH_DATA/'SBIC.v2.agg.cmb_classes.txt'), header=None)[0].to_list()
