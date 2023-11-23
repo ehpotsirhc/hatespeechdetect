@@ -44,34 +44,33 @@ Thumbs.db
 *.wmv
 
 
+_deprecated/LOTClass/datasets/agnews/*.txt
+_deprecated/LOTClass/datasets/amazon/*.txt
+_deprecated/LOTClass/datasets/dbpedia/*.txt
+_deprecated/LOTClass/datasets/imdb/*.txt
+
+_deprecated/WeSTClass/agnews/
+_deprecated/WeSTClass/yelp/
+
+_deprecated/XClass/data/datasets/20News/*.txt
+_deprecated/XClass/data/datasets/AGNews/*.txt
+_deprecated/XClass/data/datasets/DBpedia/*.txt
+_deprecated/XClass/data/datasets/NYT-Locations/*.txt
+_deprecated/XClass/data/datasets/NYT-Small/*.txt
+_deprecated/XClass/data/datasets/NYT-Topics/*.txt
+_deprecated/XClass/data/datasets/Yelp/*.txt
+_deprecated/XClass/data/*
+
+_deprecated/BERT/models/
+_deprecated/BERT/data/
+_deprecated/BERT/tmp/
 
 
-classifiers/LOTClass/datasets/agnews/*.txt
-classifiers/LOTClass/datasets/amazon/*.txt
-classifiers/LOTClass/datasets/dbpedia/*.txt
-classifiers/LOTClass/datasets/imdb/*.txt
-
-classifiers/WeSTClass/agnews/
-classifiers/WeSTClass/yelp/
-
-classifiers/XClass/data/datasets/20News/*.txt
-classifiers/XClass/data/datasets/AGNews/*.txt
-classifiers/XClass/data/datasets/DBpedia/*.txt
-classifiers/XClass/data/datasets/NYT-Locations/*.txt
-classifiers/XClass/data/datasets/NYT-Small/*.txt
-classifiers/XClass/data/datasets/NYT-Topics/*.txt
-classifiers/XClass/data/datasets/Yelp/*.txt
-classifiers/XClass/data/*
-
-datasets/downloaded/
 
 tmp/
 datasets/tmp_*/
 datasets/SBIC/
-
-classifiers/BERT/models/
-classifiers/BERT/data/
-classifiers/BERT/tmp/
+datasets/downloaded/
 
 classifiers2/BERT/_cached
 classifiers2/BERT/_models
