@@ -10,6 +10,7 @@
 from .config import Constants
 from .utils import StaticRepUtils as SRU
 from .utils import ClassDocRepUtils as CDRU
+from pathlib import Path
 from collections import Counter
 from scipy.special import softmax
 from sklearn.decomposition import PCA
@@ -525,7 +526,7 @@ class DocClassAlign:
                 documents_to_class, centers, distance = self.align_docs_kmeans(
                     document_representations, class_representations, n_classes, args.random_state)
             
-            save_dict_data['dataset_name'] = args.dataset.name
+            save_dict_data['dataset_name'] = Path(args.dataset).name
             save_dict_data['pca'] = args.pca
             save_dict_data['cluster_method'] = args.cluster_method
             save_dict_data['lm_type'] = lm_type
