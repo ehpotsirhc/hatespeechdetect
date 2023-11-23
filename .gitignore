@@ -72,7 +72,7 @@ datasets/tmp_*/
 datasets/SBIC/
 datasets/downloaded/
 
-classifiers2/BERT/_cached
-classifiers2/BERT/_models
-classifiers2/XClass/_cached
-classifiers2/XClass/_models
+classifiers/BERT/_cached
+classifiers/BERT/_models
+classifiers/XClass/_cached
+classifiers/XClass/_models
