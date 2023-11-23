@@ -72,3 +72,8 @@ datasets/SBIC/
 classifiers/BERT/models/
 classifiers/BERT/data/
 classifiers/BERT/tmp/
+
+classifiers2/BERT/_cached
+classifiers2/BERT/_models
+classifiers2/XClass/_cached
+classifiers2/XClass/_models
