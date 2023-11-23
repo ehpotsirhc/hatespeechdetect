@@ -44,26 +44,26 @@ Thumbs.db
 *.wmv
 
 
-_deprecated/LOTClass/datasets/agnews/*.txt
-_deprecated/LOTClass/datasets/amazon/*.txt
-_deprecated/LOTClass/datasets/dbpedia/*.txt
-_deprecated/LOTClass/datasets/imdb/*.txt
+_deprecated/classifiers/LOTClass/datasets/agnews/*.txt
+_deprecated/classifiers/LOTClass/datasets/amazon/*.txt
+_deprecated/classifiers/LOTClass/datasets/dbpedia/*.txt
+_deprecated/classifiers/LOTClass/datasets/imdb/*.txt
 
-_deprecated/WeSTClass/agnews/
-_deprecated/WeSTClass/yelp/
+_deprecated/classifiers/WeSTClass/agnews/
+_deprecated/classifiers/WeSTClass/yelp/
 
-_deprecated/XClass/data/datasets/20News/*.txt
-_deprecated/XClass/data/datasets/AGNews/*.txt
-_deprecated/XClass/data/datasets/DBpedia/*.txt
-_deprecated/XClass/data/datasets/NYT-Locations/*.txt
-_deprecated/XClass/data/datasets/NYT-Small/*.txt
-_deprecated/XClass/data/datasets/NYT-Topics/*.txt
-_deprecated/XClass/data/datasets/Yelp/*.txt
-_deprecated/XClass/data/*
+_deprecated/classifiers/XClass/data/datasets/20News/*.txt
+_deprecated/classifiers/XClass/data/datasets/AGNews/*.txt
+_deprecated/classifiers/XClass/data/datasets/DBpedia/*.txt
+_deprecated/classifiers/XClass/data/datasets/NYT-Locations/*.txt
+_deprecated/classifiers/XClass/data/datasets/NYT-Small/*.txt
+_deprecated/classifiers/XClass/data/datasets/NYT-Topics/*.txt
+_deprecated/classifiers/XClass/data/datasets/Yelp/*.txt
+_deprecated/classifiers/XClass/data/*
 
-_deprecated/BERT/models/
-_deprecated/BERT/data/
-_deprecated/BERT/tmp/
+_deprecated/classifiers/BERT/models/
+_deprecated/classifiers/BERT/data/
+_deprecated/classifiers/BERT/tmp/
 
 
 
