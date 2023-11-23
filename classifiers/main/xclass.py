@@ -50,7 +50,7 @@ def bert_main(args, logger, model_main, df_training, **kwargs):
     train_set, val_set, test_labels, test_goldlabels, test_texts = BertPreproc.training_split_and_tensorify(df_training)
     BertPreproc.tvs_stats(logger, train_set, val_set, test_texts)
 
-    if not args.testing_only:
+    if not args.evalonly:
         torch.cuda.empty_cache()
         model_main.cuda()
         logger.info('Beginning language model training...')

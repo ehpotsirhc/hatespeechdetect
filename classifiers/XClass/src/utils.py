@@ -48,8 +48,8 @@ class Bootstrap:
         parser.add_argument('--pca', type=int, default=DCAP.pca)
         parser.add_argument('--cluster_method', type=str, default=DCAP.cluster_method)
         parser.add_argument('--confidence_threshold', default=CPP.confidence_threshold)
-        parser.add_argument('--skipcached', action=argparse.BooleanOptionalAction)
-        parser.add_argument('--testing-only', action=argparse.BooleanOptionalAction)
+        parser.add_argument('--usecached', action=argparse.BooleanOptionalAction)
+        parser.add_argument('--evalonly', action=argparse.BooleanOptionalAction)
         args = parser.parse_args()
         return args
 

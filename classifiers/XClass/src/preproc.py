@@ -159,7 +159,7 @@ class StaticReps:
         fname_tokenized = Constants.FPATH_STATICREPS_TOKENS
         fname_staticreps = Constants.FPATH_STATICREPS_DATA
         if (Constants.DPATH_CACHED/fname_tokenized).exists() and \
-            (Constants.DPATH_CACHED/fname_staticreps).exists() and not args.skipcached:
+            (Constants.DPATH_CACHED/fname_staticreps).exists() and args.usecached:
             logging.info('Static Representations already computed. Using cached version.')
         else:
             logging.info('Computing Static Representations...')
@@ -405,7 +405,7 @@ class ClassDocReps:
     # -------------------------------------------------------------------------
     def main(self, args, classnames):
         fname_classdocreps = Constants.FPATH_CLASSDOCREPS_DATA
-        if (Constants.DPATH_CACHED/fname_classdocreps).exists() and not args.skipcached:
+        if (Constants.DPATH_CACHED/fname_classdocreps).exists() and args.usecached:
             logging.info('Class-Oriented Document Representations already computed. Using cached version.')
             with open(Constants.DPATH_CACHED/fname_classdocreps, 'rb') as f:
                 classdocreps = pickle.load(f)
@@ -502,7 +502,7 @@ class DocClassAlign:
 
         fname_aligned = Constants.FPATH_DOCCLASSALIGN_DATA
 
-        if (Constants.DPATH_CACHED/fname_aligned).exists() and not args.skipcached:
+        if (Constants.DPATH_CACHED/fname_aligned).exists() and args.usecached:
             logging.info('Documents already aligned. Using cached version.')
         else:
             logging.info('Performing Document-Class Alignment...')
