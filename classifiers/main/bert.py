@@ -21,7 +21,7 @@ import torch, time
 # Main Function
 
 def main(logger, model_main, df_training, **kwargs):
-    testing_only = kwargs['testing_only'] if 'testing_only' in kwargs else False
+    evalonly = kwargs['evalonly'] if 'evalonly' in kwargs else False
     hyparams = kwargs['hyparams'] if 'hyparams' in kwargs else {}
     df_testing = kwargs['predict'] if 'predict' in kwargs else None
     fpath_modelcached = Constants.DPATH_MODELS/Constants.FPATH_MODEL
@@ -33,7 +33,7 @@ def main(logger, model_main, df_training, **kwargs):
     # print train-/test-split stats
     Preproc.tvs_stats(logger, train_set, val_set, test_texts)
     
-    if not testing_only:
+    if not evalonly:
         # ------------------------------------------------------------
         # train the model on the GPU
         hlp.seed_everything()
@@ -90,10 +90,10 @@ if __name__ == '__main__':
         logger.info('Using "%s" as the training data instead...' % fpath_training_custom[0])
         print()
         Data.init(fpath_training_custom[0])
-    if '--testing-only' in sys.argv:
+    if '--evalonly' in sys.argv:
         logger.info('Running in test-only (non-training) mode...')
         print()
-        main(logger, Constants.MODEL, Data.training, hyparams=Hyperparams.hyperparams, testing_only=True)
+        main(logger, Constants.MODEL, Data.training, hyparams=Hyperparams.hyperparams, evalonly=True)
     else:
         logger.info('Running in full (train/validate/test) mode...')
         logger.info('Unsaved models will be overwritten. Use Control-C to terminate immediately...')
