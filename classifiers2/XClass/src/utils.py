@@ -14,7 +14,7 @@ from .config import ClassDocRepParams as CDRP
 from .config import DocClassAlignParams as DCAP
 from .config import ClassifyPrepParams as CPP
 from sklearn.metrics import confusion_matrix, f1_score, precision_score, recall_score, accuracy_score
-import logging, sys, argparse, time, numpy as np, re, json
+import logging, sys, argparse, time, numpy as np, re, json, os
 
 # =================================================================================================
 
@@ -23,8 +23,10 @@ import logging, sys, argparse, time, numpy as np, re, json
 class Bootstrap:
     @staticmethod
     def logging_init():
+        logpath = Constants.DPATH_LOGS/Constants.FPATH_LOG_MAIN
+        os.makedirs(logpath.parent) if not logpath.parent.exists() else None
         logging.basicConfig(
-            filename=Constants.FPATH_LOGS, 
+            filename=logpath, 
             filemode='w', 
             format='%(asctime)s - [%(levelname)s] %(message)s', 
             datefmt='%Y-%m-%d %H:%M:%S', 

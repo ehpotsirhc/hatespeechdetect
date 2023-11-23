@@ -113,11 +113,14 @@ class Preproc:
 
 
     @staticmethod
-    def tvs_stats(train_set, val_set, test_text):
+    def tvs_stats(logger, train_set, val_set, test_text):
+        trn, val, tst = len(train_set), len(val_set), len(test_text)
+        logger.info('Dataset Stats (sizes)... train_set: %s, val_set: %s, test_text: %s, total: %s' % \
+            (trn, val, tst, trn+val+tst))
         hlp.separator(msg='Training Dataset Stats')
-        print('  train_set:', len(train_set))
-        print('    val_set:', len(val_set))
-        print('  test_text:', len(test_text))
-        print('      TOTAL:', len(train_set) + len(val_set) + len(test_text))
+        print('  train_set:', trn)
+        print('    val_set:', val)
+        print('  test_text:', tst)
+        print('      TOTAL:', trn+val+tst)
         print()
 

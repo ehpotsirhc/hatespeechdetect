@@ -10,7 +10,7 @@
 
 # -----------------------------------------------------------------------------
 from pathlib import Path
-import numpy as np, torch, random, json
+import numpy as np, torch, random, json, logging, sys, time
 from .config import Constants
 
 # -----------------------------------------------------------------------------
@@ -51,4 +51,34 @@ class Helpers2:
         gpu_device = torch.device('cuda')
         print(f'Found device: {gpu_name}, n_gpu: {n_gpu}\n') if showmsg is True else None
         return (gpu_device, gpu_name, n_gpu)
+
+    @staticmethod
+    def logging_init():
+        logpath = Constants.DPATH_LOGS/Constants.FPATH_LOG_MAIN
+        os.makedirs(logpath.parent) if not logpath.parent.exists() else None
+        logging.basicConfig(
+            filename=logpath, 
+            filemode='w', 
+            format='%(asctime)s - [%(levelname)s] %(message)s', 
+            datefmt='%Y-%m-%d %H:%M:%S', 
+            level=logging.INFO)
+        logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
+        return logging
+
+
+# -----------------------------------------------------------------------------
+# handles the main program's timers
+class Timer:
+    start, finish, total = -1, -1, -1
+
+    @staticmethod
+    def start():
+        Timer.start = time.time()
+        return Timer.start
+
+    @staticmethod
+    def finish():
+        Timer.finish = time.time()
+        Timer.total = Timer.finish - Timer.start
+        return Timer.finish
 

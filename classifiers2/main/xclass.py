@@ -35,38 +35,42 @@ def xclass_pretrain(args, texts, classnames, labels):
     ClassifyPrep.main(args, texts, classnames, labels)  # filter for the high-confidence texts; preps data for final training
 
 
-def bert_main(args, model_main, df_training, **kwargs):
+def bert_main(args, logger, model_main, df_training, **kwargs):
     hyparams = kwargs['hyparams'] if 'hyparams' in kwargs else {}
+    fpath_modelcached = Constants.DPATH_MODELS/Constants.FPATH_MODEL
     
     BertHlp.seed_everything()
     BertConst.GPU_DEVICE = BertHlp.gpu_init(showmsg=True)[0]
     BertConst.MODEL = model_main
     
-    print('Running in full (train/validate/test) mode...')
+    logger.info('Running in full (train/validate/test) mode...')
     print('Unsaved models will be overwritten. Use Control-C to terminate immediately...\n')
     time.sleep(1)
 
     train_set, val_set, test_labels, test_goldlabels, test_texts = BertPreproc.training_split_and_tensorify(df_training)
-    BertPreproc.tvs_stats(train_set, val_set, test_texts)
+    BertPreproc.tvs_stats(logger, train_set, val_set, test_texts)
 
     if not args.testing_only:
         torch.cuda.empty_cache()
         model_main.cuda()
         logger.info('Beginning language model training...')
-        BertClassify.model_train(model_main, train_set, val_set, **hyparams)
+        BertClassify.model_train(logger, model_main, train_set, val_set, **hyparams)
 
-        fpath_modelcached = Constants.DPATH_MODELS/'model_cached.torch'
         logger.info('Caching trained language model to "%s"...' % str(fpath_modelcached))
+        print('\n')
         BertClassify.model_save(BertConst.MODEL, fpath_modelcached)
 
     logger.info('Model Evaluation...')
     BertHlp.seed_everything()
     torch.cuda.empty_cache()
-    model_main.load_state_dict(torch.load(Constants.DPATH_MODELS/'model_cached.torch'))
+    model_main.load_state_dict(torch.load(fpath_modelcached))
     model_main.cuda()
-    errors = BertClassify.model_error(test_texts, test_goldlabels, hyparams=hyparams, n_err=5)
-    print('\nExamples of Incorrect Predictions...')
-    [print('- '*25, '\n', e) for e in errors]
+    errors = BertClassify.model_error(logger, test_texts, test_goldlabels, hyparams=hyparams, n_err=5)
+    print()
+    logger.info('Examples of Incorrect Predictions...')
+    for incorrect in errors:
+        print('- '*25)
+        logger.info(incorrect)
     print()
 
 
@@ -91,7 +95,7 @@ def main(args, logger):
 
     BertDataObj.init(fpath_selected_final)
     print(fpath_selected_final)
-    bert_main(args, Hyperparams.model_Bert, BertDataObj.training, hyparams=Hyperparams.hyperparams)
+    bert_main(args, logger, Hyperparams.model_Bert, BertDataObj.training, hyparams=Hyperparams.hyperparams)
 
 
 #  ----------------------------------------------------------------------------

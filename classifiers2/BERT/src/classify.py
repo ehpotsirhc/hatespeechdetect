@@ -22,7 +22,7 @@ warnings.filterwarnings('ignore') #ignore zero_dividion errors when evaluating
 # -----------------------------------------------------------------------------
 # Model Analysis
 # function to get validation accuracy with prediction-vs-true labels returned
-def get_validation_performance_with_labels(val_set, **kwargs):
+def get_validation_performance_with_labels(logger, val_set, **kwargs):
     hlp.seed_everything()
     batch_size = kwargs['batch_size'] if 'batch_size' in kwargs else 50
     model = Constants.MODEL
@@ -91,8 +91,8 @@ def get_validation_performance_with_labels(val_set, **kwargs):
     F1_mi = f1_score(labels_true, labels_pred, average='micro')
     # print('labels_pred:', labels_pred)
     # print('labels_true:', labels_true)
-    print('Predictions Correct: %s/%s' % (total_correct, len(labels_pred)))
-    print('Predictions Expected:', len(val_set))
+    logger.info('Predictions Correct: %s/%s' % (total_correct, len(labels_pred)))
+    logger.info('Predictions Expected: %s' % len(val_set))
     results = {
         'acc': avg_val_accuracy, 
         'P_ma': P_ma, 
@@ -111,7 +111,7 @@ def get_validation_performance_with_labels(val_set, **kwargs):
 # Model Related Functions
 
 # trains a model given a pre-trained model, training set and validation set
-def model_train(model, train_set, val_set, **kwargs):
+def model_train(logger, model, train_set, val_set, **kwargs):
     hlp.separator(msg='Beginning training loop...')
     hlp.seed_everything()
     
@@ -121,7 +121,8 @@ def model_train(model, train_set, val_set, **kwargs):
 
     for epoch_i in range(0, epochs):
         # Perform one full pass over the training set.
-        print('\n======== Epoch %s / %s ========' % (epoch_i+1, epochs))
+        print()
+        logger.info('======== Epoch %s / %s ========' % (epoch_i+1, epochs))
 
         # Reset the total loss for this epoch.
         total_train_loss = 0
@@ -166,14 +167,15 @@ def model_train(model, train_set, val_set, **kwargs):
             optimizer.step()
             
         # Measure the performance on the validation set after the completion of each epoch
-        vperf = get_validation_performance_with_labels(val_set, batch_size=batch_size)
+        vperf = get_validation_performance_with_labels(logger, val_set, batch_size=batch_size)
         acc, P_ma, P_mi, R_ma, R_mi, F1_ma, F1_mi = vperf['acc'], vperf['P_ma'], vperf['P_mi'], vperf['R_ma'], vperf['R_mi'], vperf['F1_ma'], vperf['F1_mi']
         labels_pred, labels_true = vperf['labels_pred'], vperf['labels_true']
         n_correct, n_total = (np.array(labels_pred)==np.array(labels_true)).sum(), len(labels_pred)
-        print('Total Loss:', total_train_loss)
-        print('Validation Accuracy: %s/%s  (%.5f%%)' % (n_correct, n_total, acc*100))
-        print('Validation Scores (P/R/F1) (Ma, Mi): (%.5f, %.5f) / (%.5f, %.5f)/ (%.5f, %.5f)' % (P_ma, P_mi, R_ma, R_mi, F1_ma, F1_mi))
-    print('\nTraining Complete!\n\n')
+        logger.info('Total Loss: %s' % total_train_loss)
+        logger.info('Validation Accuracy: %s/%s  (%.5f%%)' % (n_correct, n_total, acc*100))
+        logger.info('Validation Scores (P/R/F1) (Ma, Mi): (%.5f, %.5f) / (%.5f, %.5f)/ (%.5f, %.5f)' % (P_ma, P_mi, R_ma, R_mi, F1_ma, F1_mi))
+    print()
+    logger.info('Language model training complete')
 
 
 def model_save(model, fpath):
@@ -181,7 +183,7 @@ def model_save(model, fpath):
     torch.save(model.state_dict(), fpath)
 
 
-def model_predict(test_text, **kwargs):
+def model_predict(logger, test_text, **kwargs):
     hlp.seed_everything()
     test_set = Preproc.texts2set(test_text)
     batch_size = kwargs['batch_size'] if 'batch_size' in kwargs else 50
@@ -219,10 +221,10 @@ def model_predict(test_text, **kwargs):
 
 
 # perform an error analysis on the model and print out the incorrect examples
-def model_error(test_text, test_labels_true, **kwargs):
+def model_error(logger, test_text, test_labels_true, **kwargs):
     hyparams = kwargs['hyparams'] if 'hyparams' in kwargs else {}
     n_err = kwargs['n_err'] if 'n_err' in kwargs else 5   # default to 5
-    labels_pred = model_predict(test_text, batch_size=hyparams['batch_size'])
+    labels_pred = model_predict(logger, test_text, batch_size=hyparams['batch_size'])
     indices_wrong = np.argwhere((labels_pred==test_labels_true) == False).flatten()
     n_correct = (np.array(labels_pred)==np.array(test_labels_true)).sum()
     n_total = len(labels_pred)
@@ -233,8 +235,8 @@ def model_error(test_text, test_labels_true, **kwargs):
     R_mi = recall_score(test_labels_true, labels_pred, average='micro')
     F1_ma = f1_score(test_labels_true, labels_pred, average='macro')
     F1_mi = f1_score(test_labels_true, labels_pred, average='micro')
-    print('Prediction Accuracy: %s/%s  (%.5f%%)' % (n_correct, n_total, n_correct_percentage))
-    print('Precision/Recall/F1 (Macro, Micro): [(%.5f, %.5f)/ (%.5f, %.5f) / (%.5f, %.5f)]' % (P_ma, P_mi, R_ma, R_mi, F1_ma, F1_mi))
+    logger.info('Prediction Accuracy: %s/%s  (%.5f%%)' % (n_correct, n_total, n_correct_percentage))
+    logger.info('Precision/Recall/F1 (Macro, Micro): [(%.5f, %.5f)/ (%.5f, %.5f) / (%.5f, %.5f)]' % (P_ma, P_mi, R_ma, R_mi, F1_ma, F1_mi))
 
     if indices_wrong.size >= n_err:
         idx_examples = np.random.choice(indices_wrong, size=n_err, replace=False).tolist()
