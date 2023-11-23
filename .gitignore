@@ -44,6 +44,9 @@ Thumbs.db
 *.wmv
 
 
+# Omitting all CSVs unless force-added
+*.csv
+
 _deprecated/classifiers/LOTClass/datasets/agnews/*.txt
 _deprecated/classifiers/LOTClass/datasets/amazon/*.txt
 _deprecated/classifiers/LOTClass/datasets/dbpedia/*.txt
