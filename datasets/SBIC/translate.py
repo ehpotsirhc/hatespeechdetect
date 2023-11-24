@@ -11,7 +11,7 @@ from pathlib import Path
 from datetime import datetime
 import sys, logging, os, random, time, json
 import pandas as pd
-import googletrans
+import googletrans  # v4.0.0rc1
 
 # =============================================================================
 
