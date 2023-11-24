@@ -23,7 +23,9 @@ class Constants:
     FPATH_SESSION = DPATH_LOGS/'session.json'
     # LANGUAGES = ['chinese (simplified)', 'hindi', 'spanish', 'french', 'russian', 'japanese', 'german']
     LANGUAGES = ['hindi', 'spanish', 'russian']
-    DELAY_BASE = 100
+    DELAY_THRESHOLD = 500
+    T_DELAY_INTERIM = 100
+    T_DELAY_RETRY = 10
 
 
 class Utils:
@@ -33,7 +35,7 @@ class Utils:
         os.makedirs(logpath.parent) if not logpath.parent.exists() else None
         logging.basicConfig(
             filename=logpath, 
-            filemode='w', 
+            filemode='a', 
             format='%(asctime)s - [%(levelname)s] %(message)s', 
             datefmt='%Y-%m-%d %H:%M:%S', 
             level=logging.INFO)
@@ -64,8 +66,9 @@ class Persistence:
 
 class Translate:
     def __init__(self):
-        translator = googletrans.Translator()
-    
+        self.translator = googletrans.Translator()
+        self.counter = 0
+
     def languages_available(self):
         return googletrans.LANGUAGES
     
@@ -74,13 +77,19 @@ class Translate:
         return {lang_key:lang_name for (lang_key, lang_name) in available if lang_name in target_languages}
     
     def translate(self, text, src, dst, **kwargs):
+        delay_rand = Constants.T_DELAY_INTERIM + random.randint(0, 15)     # prevent API timeouts
         retries = kwargs['retry'] if 'retry' in kwargs else 3
         try:
-            translation = translator.translate(text, src=src, dest=dst)
+            if self.counter > Constants.DELAY_THRESHOLD:
+                logging.info('Manually-induced API delay; Next translation will start in %s seconds...' % (delay_rand))
+                time.sleep(delay_rand)
+                self.counter = 0
+            self.counter += 1
+            translation = self.translator.translate(text, src=src, dest=dst)
             return translation.text
         except Exception as error:
             if retries > 0:
-                timeout = random.randint(3, 10)
+                timeout = Constants.T_DELAY_RETRY + random.randint(3, 10)
                 logging.warning('Translation error (%s -> %s). Retrying in %s seconds...' % (src, dst, timeout))
                 time.sleep(timeout)
                 retries -= 1
@@ -108,8 +117,8 @@ def main():
 
     for i, dst in enumerate(dst_valid):
         if dst not in Persistence.get('completed'):
-            logging.info('Beginning translation for %s' % dst)
-            Persistence.put('progress', dst)
+            logging.info('Beginning translation for target language "%s"...' % dst)
+            Persistence.put('current', dst)
             src, translated_text = 'en', []
             fpath_translated = Constants.FPATH_OUTPUT/('translated_%s.csv' % dst)
             translated_text = pd.read_csv(fpath_translated).values.tolist() if fpath_translated.exists() else translated_text
@@ -125,14 +134,9 @@ def main():
                 df_translated_row.to_csv(fpath_translated, index=False)
             logging.info('Translation for "%s" complete.' % dst)
             Persistence.put('completed', dst)
-            Persistence.put('progress', '')
-            timestamp = datetime.strftime(datetime.now(), '%m/%d/%Y %H:%M:%S')
-            delay_rand = Constants.DELAY_BASE + random.randint(0, 15)     # prevent API timeouts
-            if len(set(Persistence.get('completed'))) < len(dst_valid):
-                print('%s  The next translation round will start in %s seconds...' % (timestamp, delay_rand))
-                time.sleep(delay_rand)
+            Persistence.put('current', '')
         else:
-            Persistence.put('progress', '')
+            Persistence.put('current', '')
             logging.info('Destination language "%s" already fully translated. Skipping.' % dst)
 
 
