@@ -79,3 +79,4 @@ classifiers/BERT/_cached
 classifiers/BERT/_models
 classifiers/XClass/_cached
 classifiers/XClass/_models
+classifiers/main/logs/
