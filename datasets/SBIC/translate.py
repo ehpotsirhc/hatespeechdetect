@@ -123,7 +123,9 @@ def main():
             for idx, (text, label_name, label_id) in df_data.iterrows():
                 msg_head = ('[translating %s, %s -> %s]' % (str(idx+1).zfill(len(str(len(df_data)))), src, dst))
                 if idx < len(translated_text):
-                    logging.info('%s Already translated. Skipping.' % msg_head)
+                    # logging.info('%s Already translated. Skipping.' % msg_head)
+                    if idx == len(translated_text)-1:
+                        logging.info('Previously-translated text found. Translation will resume from line %s...' % str(idx+2).zfill(len(str(len(df_data)))))
                     continue
                 translation = translate.translate(text, src, dst)
                 logging.info('%s "%s" -> "%s"' % (msg_head, text, translation))
