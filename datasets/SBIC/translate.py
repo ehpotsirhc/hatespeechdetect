@@ -113,8 +113,6 @@ def main():
     logging.info('Requested Languages: [%s]' % ', '.join(sorted(Constants.LANGUAGES)))
     logging.info('Resolvable Languages: (%s/%s) [%s]' % (stats_nvalid, stats_nrequested, stats_resolved))
 
-    print(df_data)
-
     for i, dst in enumerate(dst_valid):
         if dst not in Persistence.get('completed'):
             logging.info('Beginning translation for target language "%s"...' % dst)
