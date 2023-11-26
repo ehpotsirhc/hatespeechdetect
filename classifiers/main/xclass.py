@@ -82,7 +82,7 @@ def main(args, logger):
         Data.init(args.dataset)
 
     texts = DataUtils.load_text(Data.data.text)
-    classnames = DataUtils.load_classnames(Data.data.label_name)
+    classnames = DataUtils.load_classnames(Data.data)
     labels = DataUtils.load_labels(Data.data.label_id)
     
     xclass_pretrain(args, texts, classnames, labels)

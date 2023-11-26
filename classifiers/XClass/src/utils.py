@@ -73,10 +73,9 @@ class ClassDocRepUtils:
 # handles data-related basic tasks
 class DataUtils:
     @staticmethod
-    def load_classnames(dfcol_classes):
-        classnames = sorted(dfcol_classes.str.lower().unique())
-        if 'lgbt' in classnames:
-            classnames.insert(0, classnames.pop(classnames.index('lgbt')))
+    def load_classnames(df_data):
+        classnames = df_data.groupby([df_data.label_name.str.lower(), df_data.label_id])\
+            .size().reset_index().sort_values(by='label_id').iloc[:,0].tolist()
         return classnames
     
     @staticmethod
