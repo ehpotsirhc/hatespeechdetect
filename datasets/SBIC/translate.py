@@ -113,31 +113,31 @@ def main():
     logging.info('Requested Languages: [%s]' % ', '.join(sorted(Constants.LANGUAGES)))
     logging.info('Resolvable Languages: (%s/%s) [%s]' % (stats_nvalid, stats_nrequested, stats_resolved))
 
-    for i, dst in enumerate(dst_valid):
-        if dst not in Persistence.get('completed'):
-            logging.info('Beginning translation for target language "%s"...' % dst)
-            Persistence.put('current', dst)
+    for langkey, langname in dst_valid.items():
+        if langkey not in Persistence.get('completed'):
+            logging.info('Beginning translation for target language "%s"...' % langkey)
+            Persistence.put('current', langkey)
             src, translated_text = 'en', []
-            fpath_translated = Constants.FPATH_OUTPUT/('translated_%s.csv' % dst)
+            fpath_translated = Constants.FPATH_OUTPUT/('translated_%s.csv' % langkey)
             translated_text = pd.read_csv(fpath_translated).values.tolist() if fpath_translated.exists() else translated_text
             for idx, (text, label_name, label_id) in df_data.iterrows():
-                msg_head = ('[translating %s, %s -> %s]' % (str(idx+1).zfill(len(str(len(df_data)))), src, dst))
+                msg_head = ('[translating %s, %s -> %s]' % (str(idx+1).zfill(len(str(len(df_data)))), src, langkey))
                 if idx < len(translated_text):
                     # logging.info('%s Already translated. Skipping.' % msg_head)
                     if idx == len(translated_text)-1:
                         logging.info('Previously-translated text found. Translation will resume from line %s...' % str(idx+2).zfill(len(str(len(df_data)))))
                     continue
-                translation = translate.translate(text, src, dst)
+                translation = translate.translate(text, src, langkey)
                 logging.info('%s "%s" -> "%s"' % (msg_head, text, translation))
                 translated_text.append((translation,label_name,label_id))
                 df_translated_row = pd.DataFrame(translated_text, columns=df_data.columns)
                 df_translated_row.to_csv(fpath_translated, index=False)
-            logging.info('Translation for "%s" complete.' % dst)
-            Persistence.put('completed', dst)
+            logging.info('Translation for "%s" complete.' % langkey)
+            Persistence.put('completed', langkey)
             Persistence.put('current', '')
         else:
             Persistence.put('current', '')
-            logging.info('Destination language "%s" already fully translated. Skipping.' % dst)
+            logging.info('Destination language "%s" already fully translated. Skipping.' % langkey)
 
 
 if __name__ == '__main__':
