@@ -116,8 +116,9 @@ def main():
     for langkey,langname in dst_valid.items():
         if langkey not in Persistence.get('completed'):
             logging.info('Updating class names with manually-translated classnames for "%s"...' % langname.capitalize())
-            labels_new = pd.read_csv('classnames/classnames_%s.txt' % langkey, header=None).iloc[:, 0].tolist()
             fpath_translated = Constants.FPATH_OUTPUT/('translated_%s.csv' % langkey)
+            df_data = pd.read_csv(fpath_translated) if fpath_translated.exists() else df_data
+            labels_new = pd.read_csv('classnames/classnames_%s.txt' % langkey, header=None).iloc[:, 0].tolist()
             labels_translated = []
             for idx, (text, label_name, label_id) in df_data.iterrows():
                 label_translated = labels_new[label_id]
