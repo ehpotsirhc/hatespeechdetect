@@ -78,7 +78,7 @@ def main(args, logger):
     logger.info('Main function started'), logger.info(args)
     DataUtils = utils.DataUtils()
 
-    if args.dataset and args.dataset.endswith('.csv'):
+    if args.dataset and str(args.dataset).endswith('.csv'):
         Data.init(args.dataset)
 
     texts = DataUtils.load_text(Data.data.text)
