@@ -113,6 +113,20 @@ def main():
     logging.info('Requested Languages: [%s]' % ', '.join(sorted(Constants.LANGUAGES)))
     logging.info('Resolvable Languages: (%s/%s) [%s]' % (stats_nvalid, stats_nrequested, stats_resolved))
 
+    for langkey,langname in dst_valid.items():
+        if langkey not in Persistence.get('completed'):
+            logging.info('Updating class names with manually-translated classnames for "%s"...' % langname.capitalize())
+            labels_new = pd.read_csv('classnames/classnames_%s.txt' % langkey, header=None).iloc[:, 0].tolist()
+            fpath_translated = Constants.FPATH_OUTPUT/('translated_%s.csv' % langkey)
+            labels_translated = []
+            for idx, (text, label_name, label_id) in df_data.iterrows():
+                label_translated = labels_new[label_id]
+                labels_translated.append((text,label_translated,label_id))
+            df_translated_lang = pd.DataFrame(labels_translated, columns=df_data.columns)
+            df_translated_lang.to_csv(fpath_translated, index=False)
+        else:
+            logging.info('Destination language "%s" already fully translated. Skipping label translations.' % langkey)
+
     for langkey, langname in dst_valid.items():
         if langkey not in Persistence.get('completed'):
             logging.info('Beginning translation for target language "%s"...' % langkey)
