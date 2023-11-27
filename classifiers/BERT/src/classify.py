@@ -246,7 +246,7 @@ def model_error(logger, test_text, test_labels_true, **kwargs):
         combined = list(zip(idx_examples, labels_pred, test_labels_true, examples))
         return [{'index':e[0], 'label_pred':hlp.id2label(e[1]), 'label_true':hlp.id2label(e[2]), 'text':e[3]} for e in combined]
     else:
-        return 'There are less than five incorrect examples.'
+        return ['There are less than five incorrect examples.']
 
 
 # -----------------------------------------------------------------------------
