@@ -121,10 +121,13 @@ class Timer:
 class TextProc:
     @staticmethod
     def clean_str(string):
-        string = TextProc.clean_html(string)
-        string = TextProc.clean_email(string)
-        string = re.sub(r"[^A-Za-z0-9(),.!?\"\']", " ", string)
-        string = re.sub(r"\s{2,}", " ", string)
+        if type(string) is not str or len(string) <= 1 or string is None:
+            return 'empty string'
+        else:
+            string = TextProc.clean_html(string)
+            string = TextProc.clean_email(string)
+            string = re.sub(r"[^A-Za-z0-9(),.!?\"\']", " ", string)
+            string = re.sub(r"\s{2,}", " ", string)
         return string.strip()
 
     @staticmethod
