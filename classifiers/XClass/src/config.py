@@ -60,23 +60,6 @@ class ClassifyPrepParams:
     confidence_threshold = 0.5
 
 
-# class ClassifyTrainParams:
-#     # data_dir = Constants.DPATH_DATA
-#     model_name_or_path = 'bert-base-uncased'
-#     task_name = '_cached'
-#     output_dir = 'OUTPUT_DIR'
-#     do_train = True
-#     do_eval = True
-#     evaluate_during_training = True
-#     learning_rate = 5e-5
-#     num_train_epochs = 3.0
-#     max_seq_length = 512
-#     per_gpu_train_batch_size = 16
-#     per_gpu_eval_batch_size = 16
-#     logging_steps = 100000
-#     save_steps = -1 
-
-
 class Hyperparams:
     train_mode = 'original'
     training_orig = {
