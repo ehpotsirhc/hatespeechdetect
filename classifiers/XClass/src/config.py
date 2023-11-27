@@ -32,6 +32,7 @@ class Constants:
     FPATH_SELECTED_TEXTS = Path('stage04_selected_texts.txt')
     FPATH_SELECTED_FINAL = Path('stage04_selected_final.csv')
     MODEL = (BertModel, BertTokenizer, 'bert-base-uncased')
+    # MODEL = (BertModel, BertTokenizer, 'bert-base-multilingual-uncased')
 
 
 class StaticRepParams:
