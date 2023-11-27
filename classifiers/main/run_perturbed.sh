@@ -3,7 +3,7 @@
 dpath=../../datasets/SBIC/perturbed/
 suffix=csv
 declare -a torun=(
-    SBIC_robustness_DIV_swapTarget
+    SBIC_robustness_DIR_swapTarget
     SBIC_robustness_INV_contract
     SBIC_robustness_INV_expand
     SBIC_robustness_INV_typo
