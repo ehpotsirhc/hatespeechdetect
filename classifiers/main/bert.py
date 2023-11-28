@@ -24,10 +24,11 @@ def main(logger, model_main, df_training, **kwargs):
     evalonly = kwargs['evalonly'] if 'evalonly' in kwargs else False
     hyparams = kwargs['hyparams'] if 'hyparams' in kwargs else {}
     df_testing = kwargs['predict'] if 'predict' in kwargs else None
+    mode = kwargs['mode'] if 'mode' in kwargs else Hyperparams.train_mode
     fpath_modelcached = Constants.DPATH_MODELS/Constants.FPATH_MODEL
 
     hlp.seed_everything()
-    train_set, val_set, test_labels, test_goldlabels, test_texts = Preproc.training_split_and_tensorify(df_training)
+    train_set, val_set, test_labels, test_goldlabels, test_texts = Preproc.training_split_and_tensorify(df_training, mode=mode)
     
     # ------------------------------------------------------------
     # print train-/test-split stats

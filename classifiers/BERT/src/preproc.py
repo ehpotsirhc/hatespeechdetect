@@ -87,15 +87,15 @@ class Preproc:
             df_val.to_csv(Constants.DPATH_CACHED/'vset_orig_val.tsv', sep='\t', index=False)
             df_test.to_csv(Constants.DPATH_CACHED/'vset_orig_test.tsv', sep='\t', index=False)
         
-        elif mode=='augmented':
-            # combine the augmented training data with original training data (that is not part of the testing data)
+        elif mode=='dataset_as_test':
+            # use the original training data with a modified test set; must run the "original" as least once first
             df_train_original = pd.read_csv(Constants.DPATH_CACHED/'vset_orig_train.tsv', sep='\t')
             df_val_original = pd.read_csv(Constants.DPATH_CACHED/'vset_orig_val.tsv', sep='\t')
-            df_augmented = pd.concat([df_train_original, df_val_original, df_training[300:]], axis=0)
-            df_train, df_val, df_test = Preproc.train_val_split(df_augmented, **Hyperparams.training_misc)
+            df_original = pd.concat([df_train_original, df_val_original], axis=0)
+            df_train, df_val, df_test = Preproc.train_val_split(df_original, **Hyperparams.training_misc)
             
-            # set/override df_test, the test set, to be the original test set
-            df_test = pd.read_csv(Constants.DPATH_CACHED/'vset_orig_test.tsv', sep='\t')
+            # set/override df_test, the test set, to be the custom test set
+            df_test = df_training
         
         else:
             df_train, df_val, df_test = Preproc.train_val_split(df_training, **Hyperparams.training_misc)
