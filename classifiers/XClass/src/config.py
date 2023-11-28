@@ -62,6 +62,7 @@ class ClassifyPrepParams:
 
 class Hyperparams:
     train_mode = 'original'
+    # train_mode = 'dataset_as_test'
     training_orig = {
         'trainfrac': 0.75, 
         'testfrac': 0.125, 

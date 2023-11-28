@@ -37,6 +37,7 @@ def xclass_pretrain(args, texts, classnames, labels):
 
 def bert_main(args, logger, model_main, df_training, **kwargs):
     hyparams = kwargs['hyparams'] if 'hyparams' in kwargs else {}
+    mode = kwargs['mode'] if 'mode' in kwargs else Hyperparams.train_mode
     fpath_modelcached = Constants.DPATH_MODELS/Constants.FPATH_MODEL
     
     BertHlp.seed_everything()
@@ -47,7 +48,7 @@ def bert_main(args, logger, model_main, df_training, **kwargs):
     print('Unsaved models will be overwritten. Use Control-C to terminate immediately...\n')
     time.sleep(1)
 
-    train_set, val_set, test_labels, test_goldlabels, test_texts = BertPreproc.training_split_and_tensorify(df_training)
+    train_set, val_set, test_labels, test_goldlabels, test_texts = BertPreproc.training_split_and_tensorify(df_training, mode=mode)
     BertPreproc.tvs_stats(logger, train_set, val_set, test_texts)
 
     if not args.evalonly:
@@ -85,13 +86,16 @@ def main(args, logger):
     classnames = DataUtils.load_classnames(Data.data)
     labels = DataUtils.load_labels(Data.data.label_id)
     
-    xclass_pretrain(args, texts, classnames, labels)
+    if Hyperparams.train_mode != 'dataset_as_test':
+        xclass_pretrain(args, texts, classnames, labels)
     
     print('\n  .....\n')
     logger.info('Beginning language model train/validate/test using the XClass-pretrained dataset...')
     BertHlp.seed_everything()
     BertDataObj = BertData()
     fpath_selected_final = Constants.DPATH_CACHED/Constants.FPATH_SELECTED_FINAL
+    if Hyperparams.train_mode == 'dataset_as_test':
+        fpath_selected_final = Data.fpath_data
 
     BertDataObj.init(fpath_selected_final)
     print(fpath_selected_final)

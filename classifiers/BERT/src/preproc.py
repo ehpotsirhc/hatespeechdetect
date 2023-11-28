@@ -106,6 +106,7 @@ class Preproc:
         val_labels, val_texts = df_val.label_ID.values, df_val.sentence.values
         test_labels, test_texts = df_test.label_ID.values, df_test.sentence.values
         test_goldlabels = df_test.label_gold.values if 'label_gold' in df_test.columns else []
+        test_goldlabels = test_labels if mode=='dataset_as_test' else test_goldlabels
         n_classes = Hyperparams.model_Bert.classifier.out_features
         train_set = Preproc.df2tensors(train_labels, train_texts, n_classes=n_classes)
         val_set = Preproc.df2tensors(val_labels, val_texts, n_classes=n_classes)
