@@ -26,11 +26,11 @@ The X-Class classifier, the target classifier this reproducibility study focuses
 
 
 ## Datasets Included
-| Dataset*                                          | Path                                        |
-|---------------------------------------------------|---------------------------------------------|
-| SBIC Dataset, Cleaned                             | datasets/SBIC/SBIC.v2.agg.cmb_processed.csv |
-| Perturbed (robustness tests)                      | datasets/SBIC/perturbed/*.csv               |
-| Translated (reduced size) (multilinguality tests) | datasets/SBIC/translated_reduced/*.csv      |
+| Dataset                                           | Path                                          |
+|---------------------------------------------------|-----------------------------------------------|
+| SBIC Dataset, Cleaned                             | `datasets/SBIC/SBIC.v2.agg.cmb_processed.csv` |
+| Perturbed (robustness tests)                      | `datasets/SBIC/perturbed/*.csv`               |
+| Translated (reduced size) (multilinguality tests) | `datasets/SBIC/translated_reduced/*.csv`      |
 
 *Due to size constraints, only the cleaned datasets have been included in this repository (but that is all you will need to run the experiments). The translated datasets for the multilinguality tests have also been included, but only the first 1000 lines of each translated dataset, again due to size constraints and its relative lack of importance in our experiments.
 
