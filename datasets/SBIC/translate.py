@@ -21,8 +21,7 @@ class Constants:
     FPATH_LOG_MAIN = Path('translate.log')
     FPATH_OUTPUT = Path('translated')
     FPATH_SESSION = DPATH_LOGS/'session.json'
-    # LANGUAGES = ['chinese (simplified)', 'hindi', 'spanish', 'french', 'russian', 'japanese', 'german']
-    LANGUAGES = ['hindi', 'spanish', 'russian']
+    LANGUAGES = ['hindi', 'spanish', 'russian', 'japanese']
     DELAY_THRESHOLD = 500
     T_DELAY_INTERIM = 100
     T_DELAY_RETRY = 10
