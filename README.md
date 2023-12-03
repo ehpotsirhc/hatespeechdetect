@@ -3,8 +3,11 @@
 
 
 ## Overview
-In this project, we explore the reproducibility of [Weakly-Supervised Hate Speech Classification](https://aclanthology.org/2023.woah-1.4.pdf). Specifically, we attempt to reproduce the experiments outlined in the paper and analyze whether weakly-supervised models can, in practice, outperform traditional supervised models.  
+In this project, we explore the reproducibility of [Weakly-Supervised Hate Speech Classification](https://aclanthology.org/2023.woah-1.4.pdf). Specifically, we attempt to reproduce the experiments outlined in the paper and analyze whether weakly-supervised models can, in practice, outperform traditional supervised models.
 
+## Our Papers
+#### Reproducibility Study<br><https://pineapple.wtf/content/files/2023/12/cs678_paper1-reproducibility_v231104035604.pdf>
+#### Robustness & Multilinguality<br><https://pineapple.wtf/content/files/2023/12/cs678_paper2-robustness-multilang_v231203205741.pdf>   
 
 ## Requirements
 Python 3.6 - 3.11; tested on 3.10.7  
