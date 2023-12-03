@@ -21,81 +21,45 @@ transformers
 tensorboard
 ```
 
-
-## To Run the Reproducibility Study - BERT
-#### Data Preparation for both BERT and XClass
-1) Clone the repository  
-2) CD into the SBIC dataset directory (datasets/SBIC)
-3) The SBIC data is already preprocessed from its 
-[original form](https://maartensap.com/social-bias-frames/), and included 
-in the repository for your convenience. Run the additional scripts following 
-the instructions below to prepare the data for the BERT versus XClass comparison:
-```
-cd hatespeechdetect/datasets/SBIC/
-python3 csv2txt.py SBIC.v2.agg.cmb_processed.csv
-python3 csv2classes.py SBIC.v2.agg.cmb_processed.csv
-```
-#### Running BERT
-The BERT experiment is not likely to take up more than 5 GBs of GPU memory 
-when using the provided parameters.
-
-1) CD into the BERT classifier directory
-2) Run main.py
-```
-cd hatespeechdetect/classifiers/BERT/src
-python3 main.py
-```
-Optionally, you may supply your own dataset. Your dataset must follow the 
-format of the supplied dataset `<REPOSITORY>/datasets/SBIC/SBIC.v2.agg.cmb_processed.csv`. 
-To run your own dataset using our supplied BERT, use the following command:
-```
-python3 main.py <dataset.csv>
-```
-Finally, to skip the training process and only retrieve the model results, 
-you may follow the command below. Do note that you must have run the training 
-at least once and have a model available in order to be able to skip directly 
-to the results analysis.
-```
-python3 main.py --testing-only
-   or
-python3 main.py <dataset.py> --testing-only
-```
-If you would like to make further changes to the provided parameters, 
-most of the changes can be done by modifying `<REPOSITORY>/classifiers/BERT/src/config.py`.
+## Notes
+The X-Class classifier, the target classifier this reproducibility study focuses on, has largely been rewritten and integrated into the rest of our reproducibility study code. As thus, the overall setup to run the code in this repository has also been simplified.
 
 
-## To Run Using Demo (Classifier-Provided) Datasets...
-1) Clone the repository  
-2) Download, extract and move the data into the right place  
-3) Run the XClass tests to reproduce the results  
-- for "run.sh", arg0=GPU_number, arg1=Dataset
-- datasets have been aggregate on a [personal server](https://pineapple.wtf/hate-speech-detection-reproducibility/) for easy access; the scripts will download from this server. You may alternatively opt to download the datasets from each of the classifiers' original data sources by following the instructions provided within each classifier's readme page.
+## Datasets Included
+| Dataset*                                          | Path                                        |
+|---------------------------------------------------|---------------------------------------------|
+| SBIC Dataset, Cleaned                             | datasets/SBIC/SBIC.v2.agg.cmb_processed.csv |
+| Perturbed (robustness tests)                      | datasets/SBIC/perturbed/*.csv               |
+| Translated (reduced size) (multilinguality tests) | datasets/SBIC/translated_reduced/*.csv      |
 
-Follow the steps below to download and run the tests...
-```
-cd hatespeechdetect/datasets/
-./data_download.sh
-./data_extract.sh
-./data_install.sh
+*Due to size constraints, only the cleaned datasets have been included in this repository (but that is all you will need to run the experiments). The translated datasets for the multilinguality tests have also been included, but only the first 1000 lines of each translated dataset, again due to size constraints and its relative lack of importance in our experiments.
 
-cd ../classifiers/XClass/scripts/
-./run.sh 0 Yelp
-```
+The original SBIC dataset can be downloaded at https://maartensap.com/social-bias-frames/. However, this original dataset is not required to run our experiments as the cleaned datasets have already been included. If however your curiosity levels are spiking, data preprocessing scripts within `datasets/SBIC/` have also been included to satisfy your curiosity.
 
-If you run into an error or would like to delete all of the downloaded data, you can run the following script
-```
-./data_clean.sh
-```
+
+## To Run the Reproducibility Study (X-Class & BERT)
+1) Clone the repository 
+2) CD into `classifiers/main/`
+
+| Experiment                  | Command               |
+|-----------------------------|-----------------------|
+| Baseline X-Class Test       | `python3 xclass.py`   |
+| Baseline BERT Test          | `python3 bert.py`     |
+| Robustness (MFT/INV/DIR)    | `./run_perturbed.sh`  |
+| Multilinguality (See Paper) | `./run_translated.sh` |
+
+#### Runtime Notes
+* Console outputs, which contain useful information such as the tests results are logged to `classifiers/main/logs/ <bert_run.log|xclass_run.log>`. These logs get overwritten on every run. To preserve the logs, rename or copy the log file you want to preserve after each run.
+* Runtime and model parameters can be configured in `classifiers/ <BERT|XClass> /src/config.py`.
+* The `--testing-only` parameter may optionally be passed into `bert.py` to run the program in testing-only mode.
+* The `--evalonly` parameter may optionally be passed into `xclass.py` to run the program in testing-only mode.
+* To skip re-computing the representations after the initial run, use the `--usecached` parameter to bypass stages 1-4 of the XClass classifier when running `xclass.py`. By default, the program assumes no cached files to ensure a clean test on every run. Only use the cached files if you know what you're doing and want to save training time.
+
 
 
 ## Resources
 #### Project Guidelines<br><https://nlp.cs.gmu.edu/course/cs678-fall23/project/>   
-#### Paper<br><https://aclanthology.org/2023.woah-1.4.pdf>  
-#### Code (Currently Private)<br><https://github.com/ehpotsirhc/hatespeechdetect>
-
-
-## Original Classifier Repositories
-https://github.com/yumeng5/LOTClass  
-https://github.com/yumeng5/WeSTClass  
-https://github.com/ZihanWangKi/XClass  
+#### Paper Studied<br><https://aclanthology.org/2023.woah-1.4.pdf>  
+#### Code <br><https://github.com/ehpotsirhc/hatespeechdetect>
+#### Original X-Class Classifier<br><https://github.com/ZihanWangKi/XClass>
 
