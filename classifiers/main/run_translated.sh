@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dpath=../../datasets/SBIC/translated/
+dpath=../../datasets/SBIC/translated_reduced/
 suffix=csv
 declare -a torun=(
     translated_es2
